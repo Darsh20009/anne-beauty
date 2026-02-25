@@ -117,7 +117,8 @@ export default function Home() {
             <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-primary mb-3 sm:mb-4 uppercase">{t('newCollection')}</span>
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[0.9] mb-6 sm:mb-8 text-black tracking-tighter">
               ANNE BEAUTY
-              <span className="block text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-3 md:mt-4 font-light text-muted-foreground italic font-serif">Anne Beauty - آن بيوتي</span>
+              <span className="block text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-3 md:mt-4 font-light text-muted-foreground italic font-serif">Wake up and Make up</span>
+              <span className="block text-sm md:text-base mt-2 font-bold text-primary">Cosmetics by Alanod +</span>
             </h1>
             <p className={`text-muted-foreground text-sm sm:text-base md:text-lg lg:text-xl mb-8 sm:mb-10 md:mb-12 max-w-md ${language === 'ar' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'} leading-relaxed font-light`}>
               {t('heroDesc')}

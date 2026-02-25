@@ -234,7 +234,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       {/* Floating WhatsApp Button */}
       <a
-        href="https://api.whatsapp.com/send/?phone=966567326086&text&type=phone_number&app_absent=0"
+        href="https://api.whatsapp.com/send/?phone=966538512423&text&type=phone_number&app_absent=0"
         target="_blank"
         rel="noreferrer"
         className={`fixed bottom-6 ${language === 'ar' ? 'right-6' : 'left-6'} z-50 flex items-center gap-2 bg-[#25D366] text-white px-4 py-3 rounded-full shadow-lg hover:scale-110 transition-transform group`}
@@ -272,7 +272,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <h3 className="font-bold text-lg mb-6">{t('contactUs')}</h3>
             <div className="space-y-4 text-sm text-muted-foreground">
               <a 
-                href="tel:+966567326086" 
+                href="tel:+966538512423" 
                 target="_blank" 
                 rel="noreferrer" 
                 className="flex items-center gap-3 p-2 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group"
@@ -280,11 +280,11 @@ export function Layout({ children }: { children: ReactNode }) {
                 <span className="bg-primary/10 p-2.5 rounded-lg text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors"><Phone className="h-4 w-4" /></span>
                 <div className="flex flex-col">
                   <span className="text-[10px] text-muted-foreground font-medium">{t('callUs')}</span>
-                  <span dir="ltr" className="font-bold">966 56 732 6086</span>
+                  <span dir="ltr" className="font-bold">966 53 851 2423</span>
                 </div>
               </a>
               <a 
-                href="mailto:genmz.sa@gmail.com" 
+                href="mailto:aannebeauty@gmail.com" 
                 target="_blank" 
                 rel="noreferrer" 
                 className="flex items-center gap-3 p-2 rounded-xl hover:bg-primary/5 hover:text-primary transition-all group"
@@ -292,14 +292,14 @@ export function Layout({ children }: { children: ReactNode }) {
                 <span className="bg-primary/10 p-2.5 rounded-lg text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors"><Mail className="h-4 w-4" /></span>
                 <div className="flex flex-col">
                   <span className="text-[10px] text-muted-foreground font-medium">{t('email')}</span>
-                  <span dir="ltr" className="font-bold">genmz.sa@gmail.com</span>
+                  <span dir="ltr" className="font-bold">aannebeauty@gmail.com</span>
                 </div>
               </a>
               <div className="flex items-center gap-3 p-2">
                 <span className="bg-primary/10 p-2.5 rounded-lg text-primary"><SiWhatsapp className="h-4 w-4" /></span>
                 <div className="flex flex-col">
                   <span className="text-[10px] text-muted-foreground font-medium">{t('whatsapp')}</span>
-                  <a href="https://api.whatsapp.com/send/?phone=966567326086" target="_blank" rel="noreferrer" dir="ltr" className="font-bold hover:text-primary transition-colors">966 56 732 6086</a>
+                  <a href="https://api.whatsapp.com/send/?phone=966538512423" target="_blank" rel="noreferrer" dir="ltr" className="font-bold hover:text-primary transition-colors">966 53 851 2423</a>
                 </div>
               </div>
             </div>
@@ -360,7 +360,11 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
 
           {/* Saudi Business Center Certification */}
-          <div className="mt-12 pt-8 border-t flex justify-center">
+          <div className="mt-12 pt-8 border-t flex flex-col items-center gap-8">
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{language === 'ar' ? 'وثيقة العمل الحر' : 'Freelance Document'}</span>
+              <span className="text-sm font-bold text-black">FL-941284778</span>
+            </div>
             <a 
               href="https://eauthenticate.saudibusiness.gov.sa/certificate-details/0000203202" 
               target="_blank" 
