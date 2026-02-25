@@ -23,6 +23,8 @@ import Orders from "@/pages/Orders";
 import Terms from "@/pages/Terms";
 import ForgotPassword from "@/pages/ForgotPassword";
 import Checkout from "@/pages/Checkout";
+import CheckoutSuccess from "@/pages/CheckoutSuccess";
+import CheckoutFailure from "@/pages/CheckoutFailure";
 
 import Profile from "@/pages/Profile";
 
@@ -71,6 +73,8 @@ function Router() {
       <Route path="/products" component={Products} />
       <Route path="/products/:id" component={ProductDetails} />
       <Route path="/cart" component={Cart} />
+      <Route path="/payment-success" component={CheckoutSuccess} />
+      <Route path="/payment-failure" component={CheckoutFailure} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />

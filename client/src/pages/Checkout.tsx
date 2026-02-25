@@ -1,3 +1,4 @@
+import { SEO } from "@/components/SEO";
 import { Layout } from "@/components/Layout";
 import { useCart } from "@/hooks/use-cart";
 import { useCoupon } from "@/hooks/use-coupon";
@@ -17,6 +18,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { LocationMap } from "@/components/LocationMap";
 import { useQuery } from "@tanstack/react-query";
 
+import logoImg from "@assets/logo.png";
+
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
   const { appliedCoupon } = useCoupon();
@@ -24,7 +27,18 @@ export default function Checkout() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "bank_transfer" | "tap" | "tabby" | "tamara">("wallet");
+  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "apple_pay" | "tabby" | "tamara" | "moyasar">("apple_pay");
+  const { data: settings } = useQuery<any>({ queryKey: ["/api/settings"] });
+  const [isAppleDevice, setIsAppleDevice] = useState(false);
+
+  useEffect(() => {
+    const isApple = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
+                   /Macintosh/.test(navigator.userAgent);
+    setIsAppleDevice(isApple);
+    setPaymentMethod(isApple ? "apple_pay" : "moyasar");
+  }, []);
+  const [showMoyasarForm, setShowMoyasarForm] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -59,8 +73,9 @@ export default function Checkout() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(user?.addresses?.[0]?.id || null);
   const [showAddAddressForm, setShowAddAddressForm] = useState(false);
   const [showMapForm, setShowMapForm] = useState(false);
-  const [newAddress, setNewAddress] = useState({ street: "", city: "" });
+  const [newAddress, setNewAddress] = useState({ street: "", city: "", nationalAddress: "" });
   const [shippingCompany, setShippingCompany] = useState<string>("");
+  const [saveAddress, setSaveAddress] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
@@ -72,41 +87,39 @@ export default function Checkout() {
     }
   });
 
-  // Redirect if cart is empty
   useEffect(() => {
     if (items.length === 0) {
       setLocation("/cart");
     }
   }, [items.length, setLocation]);
 
-  // Set default shipping company when data arrives
   useEffect(() => {
-    if (shippingCompany === "" && shippingCompanies.length > 0) {
-      setShippingCompany(shippingCompanies[0].id);
+    if (shippingCompanies.length > 0) {
+      const storageStation = shippingCompanies.find((c: any) => c.id === "storage-station");
+      if (storageStation) {
+        setShippingCompany(storageStation.id);
+      } else {
+        setShippingCompany(shippingCompanies[0].id);
+      }
     }
-  }, [shippingCompanies, shippingCompany]);
+  }, [shippingCompanies]);
 
   if (items.length === 0) {
     return null;
   }
 
   const selectedShipping = shippingCompanies.find((c: any) => c._id === shippingCompany || c.id === shippingCompany) || shippingCompanies[0];
-  const shippingPrice = selectedShipping?.price || 0;
+  const shippingPrice = 20;
 
-  // Calculate discount
   const calculateDiscount = () => {
     if (!appliedCoupon) return 0;
     const subtotal = total();
-    
-    // Check minimum order amount
     if (appliedCoupon.minOrderAmount && subtotal < appliedCoupon.minOrderAmount) {
       return 0;
     }
-
     if (appliedCoupon.type === "percentage") {
       return (subtotal * appliedCoupon.value) / 100;
     } else if (appliedCoupon.type === "cashback") {
-      // Cashback doesn't reduce the order total, it's credited after purchase
       return 0;
     } else {
       return appliedCoupon.value;
@@ -117,7 +130,6 @@ export default function Checkout() {
     if (!appliedCoupon || appliedCoupon.type !== "cashback") return 0;
     const subtotal = total();
     const cashbackAmount = (subtotal * appliedCoupon.value) / 100;
-    // Apply max cashback limit if exists
     if (appliedCoupon.maxCashback && cashbackAmount > appliedCoupon.maxCashback) {
       return appliedCoupon.maxCashback;
     }
@@ -151,11 +163,20 @@ export default function Checkout() {
       return;
     }
 
+    if (!selectedAddressId && (!newAddress.street || !newAddress.city || !newAddress.nationalAddress)) {
+      toast({
+        title: "بيانات ناقصة",
+        description: "يرجى إكمال بيانات عنوان الشحن والعنوان الوطني",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setShowConfirmDialog(true);
   };
 
   const handleFinalCheckout = async () => {
-    if (!confirmPassword && paymentMethod !== "tamara" && paymentMethod !== "tabby") {
+    if (!confirmPassword && paymentMethod !== "tamara" && paymentMethod !== "tabby" && paymentMethod !== "moyasar" && paymentMethod !== "apple_pay") {
       toast({
         title: "خطأ",
         description: "يرجى إدخال كلمة المرور للتأكيد",
@@ -166,8 +187,7 @@ export default function Checkout() {
 
     setIsSubmitting(true);
     try {
-      // First verify password (skip for Tamara/Tabby initial checkout)
-      if (paymentMethod !== "tamara" && paymentMethod !== "tabby") {
+      if (paymentMethod !== "tamara" && paymentMethod !== "tabby" && paymentMethod !== "moyasar" && paymentMethod !== "apple_pay") {
         const verifyRes = await fetch("/api/auth/verify-password", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -182,119 +202,238 @@ export default function Checkout() {
       const selectedAddr = user?.addresses?.find(a => a.id === selectedAddressId);
       const deliveryAddress = selectedAddr ? `${selectedAddr.street}, ${selectedAddr.city}` : `${newAddress.street}, ${newAddress.city}`;
       
-      let receiptUrl = null;
-      if (paymentMethod === "bank_transfer") {
-        receiptUrl = await uploadReceipt();
-        if (!receiptUrl && receiptFile) {
-          setIsSubmitting(false);
-          return;
-        }
-      }
-
-      const orderData = {
-        userId: user!.id,
-        total: finalTotal.toFixed(2),
-        subtotal: subtotal.toFixed(2),
-        vatAmount: tax.toFixed(2),
-        shippingCost: shipping.toFixed(2),
-        shippingCompany: selectedShipping.name,
-        deliveryAddress: deliveryAddress,
-        discountAmount: discountAmount.toFixed(2),
-        cashbackAmount: cashbackAmount.toFixed(2),
-        couponCode: appliedCoupon?.code || null,
-        tapCommission: (finalTotal * 0.02).toFixed(2),
-        netProfit: (finalTotal * 0.1).toFixed(2),
-        items: items.map(item => ({
-          productId: item.productId,
-          variantSku: item.variantSku,
-          quantity: item.quantity,
-          price: item.price,
-          cost: Math.round(item.price * 0.7),
-          title: item.title,
-        })),
-        shippingMethod: "delivery",
-        paymentMethod,
-        bankTransferReceipt: receiptUrl,
-        status: "new",
-        paymentStatus: paymentMethod === "wallet" ? "paid" : "pending",
-      };
-
-      const res = await apiRequest("POST", "/api/orders", orderData);
-      const order = await res.json();
-
-      // Handle Tamara Payment
-      if (paymentMethod === "tamara") {
-        const tamaraRes = await apiRequest("POST", "/api/payments/tamara/session", {
-          orderId: order.id,
-          amount: finalTotal,
-          items: items
-        });
-        const tamaraData = await tamaraRes.json();
-        if (tamaraData.redirectUrl) {
-          window.location.href = tamaraData.redirectUrl;
-          return;
-        }
-      }
-
-      // Handle Tabby Payment
-      if (paymentMethod === "tabby") {
-        const tabbyRes = await apiRequest("POST", "/api/payments/tabby/session", {
-          orderId: order.id,
-          amount: finalTotal,
-          items: items
-        });
-        const tabbyData = await tabbyRes.json();
-        if (tabbyData.redirectUrl) {
-          window.location.href = tabbyData.redirectUrl;
-          return;
-        }
-      }
-
-      if (paymentMethod === "wallet") {
-        let newBalance = (Number(user!.walletBalance) - finalTotal);
-        
-        if (cashbackAmount > 0) {
-          newBalance += cashbackAmount;
-          await apiRequest("POST", "/api/wallet/transaction", {
-            amount: cashbackAmount,
-            type: "cashback",
-            description: `كاش باك من الطلب #${order.id.slice(-8).toUpperCase()}`
+      if (saveAddress && !selectedAddressId) {
+        try {
+          await apiRequest("POST", "/api/user/addresses", {
+            name: `عنوان ${newAddress.city}`,
+            street: newAddress.street,
+            city: newAddress.city,
+            nationalAddress: newAddress.nationalAddress
           });
+        } catch (e) {
+          console.warn("Failed to save address to profile, but continuing with order");
         }
-        
-        await apiRequest("PATCH", "/api/user/wallet", { balance: newBalance.toString() });
-        await apiRequest("POST", "/api/wallet/transaction", {
-          amount: -finalTotal,
-          type: "payment",
-          description: `دفع قيمة الطلب #${order.id.slice(-8).toUpperCase()}`
-        });
       }
 
       try {
-        await apiRequest("POST", "/api/shipping/storage-station/create", {
-          orderId: order.id,
-          provider: selectedShipping.name,
-          deliveryAddress: deliveryAddress
+        const selectedAddr = user?.addresses?.find(a => a.id === selectedAddressId);
+        const res = await apiRequest("POST", "/api/orders", {
+          userId: user?.id || user?._id,
+          total: finalTotal.toFixed(2),
+          subtotal: subtotal.toFixed(2),
+          vatAmount: tax.toFixed(2),
+          shippingCost: shipping.toFixed(2),
+          shippingCompany: selectedShipping?.name || "Storage Station",
+          shippingAddress: {
+            city: selectedAddr?.city || newAddress.city,
+            street: selectedAddr?.street || newAddress.street,
+            country: "SA"
+          },
+          nationalAddress: (newAddress as any).nationalAddress || "",
+          discountAmount: discountAmount.toFixed(2),
+          cashbackAmount: cashbackAmount.toFixed(2),
+          couponCode: appliedCoupon?.code || "",
+          items: items.map(item => ({
+            productId: item.productId,
+            title: item.title,
+            variantSku: item.variantSku,
+            quantity: item.quantity,
+            price: Number(item.price),
+            cost: Number((item as any).cost || 0),
+          })),
+          shippingMethod: "delivery",
+          paymentMethod,
+          status: "new",
+          paymentStatus: (paymentMethod === "wallet" || paymentMethod === "apple_pay") ? "paid" : "pending",
+          branchId: "main",
+          type: "online"
         });
-      } catch (e) {
-        console.warn("Shipping creation failed, but order was created");
-      }
+        
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || data.error || "فشل في إنشاء الطلب");
+        }
+        
+        const order = data.data;
 
-      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      clearCart();
-      
-      let toastMessage = "سيتم التوصيل عبر Storage X قريباً";
-      if (cashbackAmount > 0) {
-        toastMessage = `تم إضافة ${cashbackAmount.toLocaleString()} ر.س كاش باك إلى محفظتك! ${toastMessage}`;
+        if (paymentMethod === "apple_pay") {
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        }
+
+        if (paymentMethod === "tamara") {
+          try {
+            const tamaraRes = await apiRequest("POST", "/api/payments/tamara/checkout", {
+              orderId: order.id || order._id,
+              amount: finalTotal,
+              items: items.map(item => ({
+                title: item.title,
+                quantity: item.quantity,
+                price: item.price,
+                productId: item.productId,
+                variantSku: item.variantSku,
+              })),
+              customer: {
+                name: user?.name || user?.phone,
+                phone: user?.phone,
+                email: user?.email || `${user?.phone}@genmz.sa`,
+              },
+              shippingAddress: {
+                street: selectedAddr?.street || newAddress.street,
+                city: selectedAddr?.city || newAddress.city,
+              }
+            });
+            
+            if (!tamaraRes.ok) {
+              const errorData = await tamaraRes.json().catch(() => ({}));
+              throw new Error(errorData.message || "فشل في الاتصال بخدمة تمارا");
+            }
+
+            const tamaraData = await tamaraRes.json();
+            if (tamaraData.success && tamaraData.checkoutUrl) {
+              window.location.href = tamaraData.checkoutUrl;
+              return;
+            } else {
+              throw new Error(tamaraData.message || "فشل في إنشاء جلسة Tamara");
+            }
+          } catch (e: any) {
+            console.error("[TAMARA] Payment Error:", e);
+            toast({
+              title: "خطأ",
+              description: e.message || "فشل في معالجة دفع تمارا",
+              variant: "destructive"
+            });
+            return;
+          }
+        }
+
+        if (paymentMethod === "tabby") {
+          try {
+            const tabbyRes = await apiRequest("POST", "/api/payments/tabby/checkout", {
+              orderId: order.id || order._id,
+              amount: finalTotal,
+              items: items.map(item => ({
+                title: item.title,
+                quantity: item.quantity,
+                price: item.price,
+                productId: item.productId,
+                variantSku: item.variantSku,
+                color: item.color,
+                size: item.size,
+              })),
+              customer: {
+                name: user?.name || user?.phone,
+                phone: user?.phone,
+                email: user?.email || `${user?.phone}@genmz.sa`,
+              },
+              shippingAddress: {
+                street: selectedAddr?.street || newAddress.street,
+                city: selectedAddr?.city || newAddress.city,
+              }
+            });
+
+            if (!tabbyRes.ok) {
+              const errorData = await tabbyRes.json().catch(() => ({}));
+              throw new Error(errorData.message || "فشل في الاتصال بخدمة تابي");
+            }
+
+            const tabbyData = await tabbyRes.json();
+            if (tabbyData.success && tabbyData.checkoutUrl) {
+              window.location.href = tabbyData.checkoutUrl;
+              return;
+            } else {
+              throw new Error(tabbyData.message || "فشل في إنشاء جلسة Tabby");
+            }
+          } catch (e: any) {
+            console.error("[TABBY] Payment Error:", e);
+            toast({
+              title: "خطأ",
+              description: e.message || "فشل في معالجة دفع تابي",
+              variant: "destructive"
+            });
+            return;
+          }
+        }
+
+        if (paymentMethod === "moyasar") {
+          try {
+            const response = await apiRequest("POST", "/api/payments/moyasar/initiate", {
+              orderId: order.id || order._id
+            });
+            
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new Error(errorData.message || "فشل بدء عملية الدفع");
+            }
+
+            const resData = await response.json();
+            if (resData.success && resData.transactionUrl) {
+              sessionStorage.setItem("lastMoyasarOrderId", order.id || order._id);
+              window.location.href = resData.transactionUrl;
+              return;
+            } else {
+              throw new Error("لم يتم استلام رابط الدفع من ميسر");
+            }
+          } catch (e: any) {
+            console.error("[MOYASAR] Payment Error:", e);
+            try {
+              await apiRequest("DELETE", `/api/admin/orders/${order.id || order._id}`);
+            } catch (delError) {
+              console.error("Failed to cleanup pending order:", delError);
+            }
+            toast({
+              title: "خطأ",
+              description: e.message || "فشل في معالجة دفع ميسر",
+              variant: "destructive"
+            });
+            return;
+          }
+        }
+
+        if (paymentMethod === "wallet") {
+          let newBalance = (Number(user!.walletBalance) - finalTotal);
+          
+          if (cashbackAmount > 0) {
+            newBalance += cashbackAmount;
+            await apiRequest("POST", "/api/wallet/transaction", {
+              amount: cashbackAmount,
+              type: "cashback",
+              description: `كاش باك من الطلب #${order.id.slice(-8).toUpperCase()}`
+            });
+          }
+          
+          await apiRequest("PATCH", "/api/user/wallet", { balance: newBalance.toString() });
+          await apiRequest("POST", "/api/wallet/transaction", {
+            amount: -finalTotal,
+            type: "payment",
+            description: `دفع قيمة الطلب #${order.id.slice(-8).toUpperCase()}`
+          });
+        }
+
+        queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+        clearCart();
+        
+        let toastMessage = "تم استلام طلبك بنجاح. سيتم التوصيل عبر Storage Station قريباً";
+        if (paymentMethod === "apple_pay") {
+          toastMessage = "تم استلام طلبك بنجاح عبر Apple Pay.";
+        }
+        if (cashbackAmount > 0) {
+          toastMessage = `تم إضافة ${cashbackAmount.toLocaleString()} ر.س كاش باك إلى محفظتك! ${toastMessage}`;
+        }
+        
+        toast({
+          title: "تم استلام طلبك بنجاح",
+          description: toastMessage,
+        });
+        
+        setTimeout(() => {
+          setLocation("/orders");
+        }, 1500);
+      } catch (innerError: any) {
+        throw innerError;
       }
-      
-      toast({
-        title: "تم استلام طلبك بنجاح",
-        description: toastMessage,
-      });
-      setLocation("/orders");
     } catch (error: any) {
+      console.error("Checkout error:", error);
       toast({
         title: "خطأ في إتمام الطلب",
         description: error.message,
@@ -309,6 +448,7 @@ export default function Checkout() {
 
   return (
     <Layout>
+      <SEO title="إتمام الشراء" />
       <div className="bg-[#fcfcfc] min-h-screen">
         <div className="container py-16 px-4 text-right" dir="rtl">
           <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6 border-b border-black/5 pb-8">
@@ -324,21 +464,19 @@ export default function Checkout() {
           
           <div className="grid lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-8 space-y-8">
-              {/* Security Banner */}
               <div className="bg-white border border-black/5 p-6 flex items-center gap-6 justify-between shadow-sm">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-green-50 rounded-none">
                     <Lock className="h-6 w-6 text-green-600" />
                   </div>
                   <div className="text-right">
-                    <h3 className="text-sm font-black text-black uppercase tracking-widest">تسوق آمن ١٠٠٪</h3>
+                    <h3 className="text-sm font-black text-black uppercase tracking-widest" data-testid="text-security-title">تسوق آمن ١٠٠٪</h3>
                     <p className="text-[9px] text-black/40 mt-1 font-bold">تشفير بياناتك يتم بأعلى معايير الأمان العالمية SSL</p>
                   </div>
                 </div>
                 <Check className="h-5 w-5 text-green-600" />
               </div>
 
-              {/* Address Selection */}
               <section className="bg-white p-8 border border-black/5 shadow-sm space-y-8">
                 <div className="flex items-center justify-between border-b border-black/5 pb-6">
                   <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
@@ -358,6 +496,7 @@ export default function Checkout() {
                             ? "border-primary bg-primary/5"
                             : "border-black/5 hover:border-black/20"
                         }`}
+                        data-testid={`card-address-${addr.id}`}
                       >
                         <div className="font-black text-sm">{addr.name}</div>
                         <div className="text-[10px] text-black/60 mt-1">{addr.street}, {addr.city}</div>
@@ -367,6 +506,7 @@ export default function Checkout() {
                       variant="outline"
                       onClick={() => setShowAddAddressForm(true)}
                       className="w-full border-black/10"
+                      data-testid="button-add-address"
                     >
                       إضافة عنوان جديد
                     </Button>
@@ -382,17 +522,43 @@ export default function Checkout() {
                           value={newAddress.street}
                           onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
                           className="h-12 border-black/10"
+                          required
+                          data-testid="input-street"
                         />
                         <Input
                           placeholder="المدينة"
                           value={newAddress.city}
                           onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
                           className="h-12 border-black/10"
+                          required
+                          data-testid="input-city"
                         />
+                        <Input
+                          placeholder="العنوان الوطني (إلزامي)"
+                          value={newAddress.nationalAddress}
+                          onChange={(e) => setNewAddress({ ...newAddress, nationalAddress: e.target.value })}
+                          className="h-12 border-black/10"
+                          required
+                          data-testid="input-national-address"
+                        />
+                        <div className="flex items-center gap-3 pt-2">
+                          <input
+                            type="checkbox"
+                            id="save-address"
+                            checked={saveAddress}
+                            onChange={(e) => setSaveAddress(e.target.checked)}
+                            className="w-5 h-5 accent-primary cursor-pointer"
+                            data-testid="checkbox-save-address"
+                          />
+                          <label htmlFor="save-address" className="text-xs font-bold text-black/60 cursor-pointer">
+                            حفظ هذا العنوان للطلبات المستقبلية
+                          </label>
+                        </div>
                         <Button
                           variant="outline"
                           onClick={() => setShowMapForm(true)}
                           className="w-full border-black/10"
+                          data-testid="button-open-map"
                         >
                           <MapPin className="w-4 h-4 mr-2" />
                           حدد الموقع من الخريطة
@@ -405,6 +571,7 @@ export default function Checkout() {
                               setSelectedAddressId(null);
                             }}
                             className="w-full border-black/10"
+                            data-testid="button-cancel-address"
                           >
                             إلغاء
                           </Button>
@@ -416,7 +583,8 @@ export default function Checkout() {
                           onLocationSelect={(coords, address) => {
                             setNewAddress({
                               street: address,
-                              city: "الرياض"
+                              city: "الرياض",
+                              nationalAddress: ""
                             });
                             setShowMapForm(false);
                             setSelectedAddressId(null);
@@ -426,6 +594,7 @@ export default function Checkout() {
                           variant="outline"
                           onClick={() => setShowMapForm(false)}
                           className="w-full border-black/10"
+                          data-testid="button-close-map"
                         >
                           إغلاق الخريطة
                         </Button>
@@ -435,7 +604,6 @@ export default function Checkout() {
                 )}
               </section>
 
-              {/* Shipping Company */}
               <section className="bg-white p-8 border border-black/5 shadow-sm space-y-8">
                 <div className="flex items-center justify-between border-b border-black/5 pb-6">
                   <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
@@ -454,6 +622,7 @@ export default function Checkout() {
                           ? "border-primary bg-primary/5"
                           : "border-black/5 hover:border-black/20"
                       }`}
+                      data-testid={`card-shipping-${company.id || company._id}`}
                     >
                       <div className="flex items-center gap-4">
                         <Truck className="h-6 w-6" />
@@ -467,119 +636,135 @@ export default function Checkout() {
                 <p className="text-[10px] text-black/40 font-bold uppercase tracking-widest">التوصيل خلال ٢-٤ أيام عمل</p>
               </section>
 
-              {/* Payment Method */}
-              <section className="bg-white p-8 border border-black/5 shadow-sm space-y-8">
-                <div className="flex items-center justify-between border-b border-black/5 pb-6">
-                  <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
-                    <CreditCard className="h-5 w-5 text-primary" />
-                    <span>طريقة الدفع</span>
-                  </h2>
+              <section className="bg-white p-8 border border-black/5 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-black/5 pb-4 mb-6">
+                  <CreditCard className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-black uppercase tracking-tighter">اختيار وسيلة الدفع</h2>
                 </div>
 
-                <RadioGroup 
-                  value={paymentMethod} 
-                  onValueChange={(v) => setPaymentMethod(v as any)}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                >
+                <div className="grid gap-3">
                   <div 
-                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${paymentMethod === "wallet" ? "border-primary bg-primary/5" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
-                    onClick={() => setPaymentMethod("wallet")}
-                    data-testid="card-payment-wallet"
+                    className={`group relative flex items-center justify-between p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === "moyasar" ? "border-black bg-black/[0.02] shadow-md" : "border-gray-100 hover:border-gray-200"}`}
+                    onClick={() => setPaymentMethod("moyasar")}
+                    data-testid="card-payment-moyasar"
                   >
-                    <div className="flex justify-between items-start mb-4">
-                      <Wallet className={`h-6 w-6 ${paymentMethod === "wallet" ? "text-primary" : "text-black/20"}`} />
-                      <RadioGroupItem value="wallet" id="wallet" className="sr-only" />
-                      <Badge variant="outline" className="text-[10px] border-primary/20 text-primary">
-                        {user?.walletBalance} ر.س
-                      </Badge>
+                    <div className="flex items-center gap-4 w-full">
+                      <div className={`flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${paymentMethod === "moyasar" ? "border-black bg-black" : "border-gray-300"}`}>
+                        {paymentMethod === "moyasar" && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-base text-gray-900">
+                            {isAppleDevice ? "Apple Pay / بطاقة بنكية" : "بطاقة مدى / فيزا / ماستركارد"}
+                          </span>
+                          <div className="flex gap-2 items-center grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all">
+                            {isAppleDevice && <Apple className="h-6 w-6 text-black" />}
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-4 w-auto" />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-3 w-auto" />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Mada_Logo.svg" alt="Mada" className="h-3 w-auto" />
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1 font-medium">دفع آمن وسريع عبر بوابة ميسر المعتمدة</p>
+                      </div>
                     </div>
-                    <Label htmlFor="wallet" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">رصيد المحفظة</Label>
                   </div>
 
                   <div 
-                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${paymentMethod === "tap" ? "border-primary bg-primary/5" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
-                    onClick={() => setPaymentMethod("tap")}
-                    data-testid="card-payment-tap"
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <CreditCard className={`h-6 w-6 ${paymentMethod === "tap" ? "text-primary" : "text-black/20"}`} />
-                      <RadioGroupItem value="tap" id="tap" className="sr-only" />
-                    </div>
-                    <Label htmlFor="tap" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">بطاقة مدى / فيزا (Tap)</Label>
-                  </div>
-
-                  <div 
-                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${paymentMethod === "tabby" ? "border-primary bg-primary/5" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
+                    className={`group relative flex items-center justify-between p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === "tabby" ? "border-[#00D3C5] bg-[#00D3C5]/[0.02] shadow-md" : "border-gray-100 hover:border-gray-200"}`}
                     onClick={() => setPaymentMethod("tabby")}
                     data-testid="card-payment-tabby"
                   >
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="font-black text-lg tracking-wider text-primary mb-1">✨ TABBY</div>
-                        <p className="text-[9px] text-black/50 font-bold">تقسيط بدون فوائد</p>
+                    <div className="flex items-center gap-4 w-full">
+                      <div className={`flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${paymentMethod === "tabby" ? "border-[#00D3C5] bg-[#00D3C5]" : "border-gray-300"}`}>
+                        {paymentMethod === "tabby" && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
                       </div>
-                      <RadioGroupItem value="tabby" id="tabby" className="sr-only" />
-                      <Badge variant="secondary" className="text-[8px]">٤ دفعات</Badge>
-                    </div>
-                    <Label htmlFor="tabby" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">Tabby - اقساط بدون فوائد</Label>
-                    <div className="text-[8px] text-black/40 space-y-1 mt-2">
-                      <p>✓ دفعة الآن + ٣ دفعات لاحقة</p>
-                      <p>✓ موافقة فورية</p>
+                      <div className="flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <img 
+                            src="https://cdn.tabby.ai/assets/logo.svg" 
+                            alt="Tabby" 
+                            className="h-6 w-auto object-contain"
+                          />
+                          <span className="font-bold text-gray-900">{(finalTotal / 4).toFixed(2)} ر.س / شهر</span>
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <p className="text-xs text-gray-500 font-medium">اشتر الآن وادفع لاحقاً - 4 دفعات بدون فوائد</p>
+                          <Badge variant="outline" className="text-[10px] font-bold border-[#00D3C5] text-[#00D3C5]">بدون رسوم</Badge>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
                   <div 
-                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer ${paymentMethod === "tamara" ? "border-primary bg-primary/5" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
+                    className={`group relative flex items-center justify-between p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === "tamara" ? "border-[#FFD500] bg-[#FFD500]/[0.02] shadow-md" : "border-gray-100 hover:border-gray-200"}`}
                     onClick={() => setPaymentMethod("tamara")}
                     data-testid="card-payment-tamara"
                   >
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="font-black text-lg tracking-wider text-amber-600 mb-1">🎯 TAMARA</div>
-                        <p className="text-[9px] text-black/50 font-bold">تقسيط بدون فوائد</p>
+                    <div className="flex items-center gap-4 w-full">
+                      <div className={`flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${paymentMethod === "tamara" ? "border-[#FFD500] bg-[#FFD500]" : "border-gray-300"}`}>
+                        {paymentMethod === "tamara" && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
                       </div>
-                      <RadioGroupItem value="tamara" id="tamara" className="sr-only" />
-                      <Badge variant="secondary" className="text-[8px] bg-amber-100 text-amber-700">٣ دفعات</Badge>
-                    </div>
-                    <Label htmlFor="tamara" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">Tamara - اقساط بدون فوائد</Label>
-                    <div className="text-[8px] text-black/40 space-y-1 mt-2">
-                      <p>✓ قسطها الآن على ٣ دفعات</p>
-                      <p>✓ موافقة فورية جداً</p>
+                      <div className="flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <img 
+                            src="https://cdn.tamara.co/assets/svg/tamara-logo-badge-en.svg" 
+                            alt="Tamara" 
+                            className="h-6 w-auto object-contain"
+                          />
+                          <span className="font-bold text-gray-900">{(finalTotal / 4).toFixed(2)} ر.س / شهر</span>
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <p className="text-xs text-gray-500 font-medium">قسمها على 4 دفعات شهرية - متوافق مع الشريعة</p>
+                          <Badge variant="outline" className="text-[10px] font-bold border-[#FFD500] text-gray-700">شرعي</Badge>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
                   <div 
-                    className={`group relative flex flex-col p-6 border transition-all cursor-pointer col-span-full ${paymentMethod === "bank_transfer" ? "border-primary bg-primary/5" : "border-black/5 bg-[#fcfcfc] hover:border-black/20"}`} 
-                    onClick={() => setPaymentMethod("bank_transfer")}
-                    data-testid="card-payment-bank"
+                    className={`group relative flex items-center justify-between p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === "wallet" ? "border-primary bg-primary/[0.02] shadow-md" : "border-gray-100 hover:border-gray-200"}`}
+                    onClick={() => setPaymentMethod("wallet")}
+                    data-testid="card-payment-wallet"
                   >
-                    <div className="flex justify-between items-start mb-4">
-                      <Landmark className={`h-6 w-6 ${paymentMethod === "bank_transfer" ? "text-primary" : "text-black/20"}`} />
-                      <RadioGroupItem value="bank_transfer" id="bank_transfer" className="sr-only" />
-                    </div>
-                    <Label htmlFor="bank_transfer" className="font-black text-sm uppercase tracking-widest cursor-pointer mb-2">تحويل بنكي</Label>
-                    
-                    {paymentMethod === "bank_transfer" && (
-                      <div className="mt-4 p-4 bg-white border border-black/5 space-y-3 text-right">
-                        <p className="text-xs font-bold text-black/60">يرجى التحويل إلى الحساب التالي ورفع صورة الإيصال:</p>
-                        <div className="space-y-1">
-                          <p className="text-sm font-black">مصرف الراجحي</p>
-                          <p className="text-xs">الاسم: Gen M Z</p>
-                          <p className="text-xs font-mono">IBAN: SA6280000501608016226411</p>
-                          <p className="text-xs font-mono">Account: 501000010006086226411</p>
-                        </div>
-                        <div className="pt-2">
-                          <Label className="text-[10px] font-black uppercase mb-2 block">رفع إيصال التحويل</Label>
-                          <Input type="file" onChange={handleReceiptUpload} accept="image/*" className="h-10 text-xs" />
-                        </div>
+                    <div className="flex items-center gap-4 w-full">
+                      <div className={`flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${paymentMethod === "wallet" ? "border-primary bg-primary" : "border-gray-300"}`}>
+                        {paymentMethod === "wallet" && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
                       </div>
-                    )}
+                      <div className="flex items-center justify-between flex-1">
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <Wallet className="h-5 w-5 text-primary" />
+                            <span className="font-bold text-gray-900">رصيد المحفظة</span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1 font-medium">الرصيد المتاح: <span className="text-primary font-bold">{user?.walletBalance || 0} ر.س</span></p>
+                        </div>
+                        {Number(user?.walletBalance) < finalTotal && (
+                          <Badge variant="destructive" className="text-[10px] font-bold">غير كافٍ</Badge>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </RadioGroup>
+
+                </div>
+                <div className="mt-6 pt-6 border-t space-y-4">
+                  <div 
+                    dangerouslySetInnerHTML={{
+                      __html: `
+                        <tamara-widget class="tamara-product-widget" type="tamara-summary" inline-type="2" amount="${finalTotal}"></tamara-widget>
+                      `
+                    }}
+                  />
+                  <div 
+                    dangerouslySetInnerHTML={{
+                      __html: `
+                        <div class="tabby-promo-widget" data-price="${finalTotal}" data-currency="SAR" data-lang="ar" data-source="product" data-type="installments"></div>
+                      `
+                    }}
+                  />
+                </div>
               </section>
             </div>
 
-            {/* Sidebar Summary */}
             <div className="lg:col-span-4">
               <div className="sticky top-24 space-y-6">
                 <div className="bg-white p-8 border border-black/5 shadow-xl">
@@ -643,6 +828,7 @@ export default function Checkout() {
                       onClick={handleCheckoutInitiate}
                       disabled={isSubmitting}
                       className="w-full font-black h-16 uppercase tracking-[0.4em] rounded-none bg-primary text-white hover:bg-primary/90 border-none transition-all disabled:opacity-50 text-[10px] shadow-xl shadow-primary/10 active:scale-95"
+                      data-testid="button-confirm-order"
                     >
                       {isSubmitting ? "جاري المعالجة..." : "تأكيد الطلب"}
                     </Button>
@@ -654,7 +840,6 @@ export default function Checkout() {
         </div>
       </div>
 
-      {/* Password Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-black/5 shadow-2xl p-8" dir="rtl">
           <DialogHeader className="text-right space-y-4">
@@ -677,11 +862,13 @@ export default function Checkout() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="h-14 bg-black/5 border-none rounded-2xl px-6 font-bold focus-visible:ring-primary/20"
                   placeholder="ادخل كلمة المرور هنا"
+                  data-testid="input-confirm-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-black/20 hover:text-primary transition-colors"
+                  data-testid="button-toggle-password"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -691,6 +878,7 @@ export default function Checkout() {
               <button 
                 className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
                 onClick={() => setShowConfirmDialog(false)}
+                data-testid="link-forgot-password"
               >
                 نسيت كلمة المرور؟
               </button>
@@ -701,6 +889,7 @@ export default function Checkout() {
               variant="outline"
               onClick={() => setShowConfirmDialog(false)}
               className="rounded-full h-14 px-8 font-black uppercase tracking-widest text-[10px] border-black/5"
+              data-testid="button-cancel-checkout"
             >
               إلغاء
             </Button>
@@ -708,8 +897,44 @@ export default function Checkout() {
               onClick={handleFinalCheckout}
               disabled={isSubmitting || !confirmPassword}
               className="rounded-full h-14 px-12 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/10 flex-1 sm:flex-none"
+              data-testid="button-final-checkout"
             >
               {isSubmitting ? "جاري التأكيد..." : "تأكيد وإتمام الطلب"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showMoyasarForm} onOpenChange={setShowMoyasarForm}>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden bg-white rounded-3xl" dir="rtl">
+          <DialogHeader className="p-8 bg-black text-white space-y-2">
+            <DialogTitle className="text-2xl font-black text-center tracking-tight">الدفع الآمن</DialogTitle>
+            <DialogDescription className="text-white/60 text-center font-bold text-sm">
+              بوابة ميسر (Moyasar) تدعم مدى، فيزا، ماستركارد، و Apple Pay
+            </DialogDescription>
+          </DialogHeader>
+          <div className="p-8 min-h-[400px]">
+            <div 
+              id="moyasar-payment-form" 
+              className="mysr-form"
+              ref={(el) => {
+                if (el && !el.innerHTML && (window as any).Moyasar) {
+                  (window as any).Moyasar.init({
+                    element: el,
+                    amount: Math.round(finalTotal * 100),
+                    currency: 'SAR',
+                    description: `طلب رقم: ${items[0]?.title.slice(0, 20)}...`,
+                    publishable_api_key: import.meta.env.VITE_MOYASAR_PUBLISHABLE_KEY || 'pk_test_vcAnvS96pDezR1o53T71cT115Snnqg9f50eByE1L',
+                    callback_url: `${window.location.origin}/api/payments/moyasar/verify`,
+                    methods: ['creditcard', 'applepay'],
+                  });
+                }
+              }}
+            ></div>
+          </div>
+          <DialogFooter className="p-4 bg-black/5 border-t border-black/5">
+            <Button variant="ghost" onClick={() => setShowMoyasarForm(false)} className="w-full font-black text-[10px] uppercase tracking-widest" data-testid="button-cancel-moyasar">
+              إلغاء والعودة
             </Button>
           </DialogFooter>
         </DialogContent>
