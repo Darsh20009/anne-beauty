@@ -1,4 +1,5 @@
 import logoImg from "@/assets/logo.png";
+import freelanceDocImg from "@assets/image_1772029235148.png";
 import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter, Download, Globe, Check, Wallet } from "lucide-react";
@@ -372,10 +373,10 @@ export function Layout({ children }: { children: ReactNode }) {
               className="flex flex-col items-center gap-2 hover:scale-110 transition-transform text-center"
             >
               <img 
-                src="https://assets.zid.store/themes/f9f0914d-3c58-493b-bd83-260ed3cb4e82/business_center.png" 
+                src={freelanceDocImg}
                 loading="lazy" 
-                alt="Saudi Business Center Certification" 
-                className="h-12 w-auto object-contain" 
+                alt="وثيقة العمل الحر" 
+                className="h-16 w-auto object-contain" 
               />
               <div className="text-xs text-muted-foreground font-semibold">0000203202</div>
             </a>
