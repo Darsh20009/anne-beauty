@@ -3,7 +3,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { useProducts } from "@/hooks/use-products";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, Star, ShieldCheck, Truck, ChevronRight, ChevronLeft, Sparkles, Heart, Gift, Crown, Palette, Eye, Droplets, Scissors, Zap, ArrowRight, ArrowLeft, Timer, TrendingUp, Award, Package } from "lucide-react";
+import { ShoppingBag, Star, ShieldCheck, Truck, ChevronRight, ChevronLeft, Sparkles, Heart, Gift, Crown, Palette, Eye, Droplets, Scissors, Zap, Timer, TrendingUp, Award, Package, Grid3X3 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
@@ -23,15 +23,15 @@ const heroSlides = [
   { img: heroImg4, titleAr: "عروض حصرية", titleEn: "Exclusive Deals", subtitleAr: "لفترة محدودة", subtitleEn: "Limited Time" },
 ];
 
-const categoryIcons = [
-  { icon: Palette, nameAr: "مكياج", nameEn: "Makeup", slug: "makeup", color: "from-rose-500 to-pink-600" },
-  { icon: Eye, nameAr: "عيون", nameEn: "Eyes", slug: "eyes", color: "from-purple-500 to-indigo-600" },
-  { icon: Heart, nameAr: "شفاه", nameEn: "Lips", slug: "lips", color: "from-red-500 to-rose-600" },
-  { icon: Droplets, nameAr: "وجه", nameEn: "Face", slug: "face", color: "from-amber-500 to-orange-600" },
-  { icon: Scissors, nameAr: "أدوات", nameEn: "Tools", slug: "tools", color: "from-teal-500 to-emerald-600" },
-  { icon: Sparkles, nameAr: "عطور", nameEn: "Perfumes", slug: "perfumes", color: "from-violet-500 to-purple-600" },
-  { icon: Crown, nameAr: "فاخر", nameEn: "Luxury", slug: "luxury", color: "from-yellow-500 to-amber-600" },
-  { icon: Gift, nameAr: "هدايا", nameEn: "Gifts", slug: "gifts", color: "from-pink-500 to-rose-600" },
+const categoryColors = [
+  "from-rose-500 to-pink-600",
+  "from-purple-500 to-indigo-600",
+  "from-red-500 to-rose-600",
+  "from-amber-500 to-orange-600",
+  "from-teal-500 to-emerald-600",
+  "from-violet-500 to-purple-600",
+  "from-yellow-500 to-amber-600",
+  "from-pink-500 to-rose-600",
 ];
 
 const featuredBanners = [
@@ -196,23 +196,31 @@ export default function Home() {
               </span>
             </Link>
           </div>
-          <div className="grid grid-cols-4 sm:grid-cols-8 gap-3 sm:gap-4">
-            {categoryIcons.map((cat, i) => (
-              <Link key={i} href={`/products?category=${cat.slug}`}>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
+            {categories && categories.length > 0 ? categories.map((cat: any, i: number) => (
+              <Link key={cat.id} href={`/products?category=${cat.slug}`}>
                 <motion.div
                   whileHover={{ y: -4 }}
                   className="flex flex-col items-center gap-2 cursor-pointer group"
                   data-testid={`category-${cat.slug}`}
                 >
-                  <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${cat.color} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all`}>
-                    <cat.icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+                  <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shadow-md group-hover:shadow-xl transition-all border border-gray-100 ${!cat.image ? `bg-gradient-to-br ${categoryColors[i % categoryColors.length]} flex items-center justify-center` : ''}`}>
+                    {cat.image ? (
+                      <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                    ) : (
+                      <Grid3X3 className="h-8 w-8 sm:h-10 sm:w-10 text-white/80" />
+                    )}
                   </div>
-                  <span className="text-[10px] sm:text-xs font-semibold text-center text-gray-700 group-hover:text-primary transition-colors">
-                    {isRTL ? cat.nameAr : cat.nameEn}
+                  <span className="text-xs sm:text-sm font-semibold text-center text-gray-700 group-hover:text-primary transition-colors">
+                    {cat.name}
                   </span>
                 </motion.div>
               </Link>
-            ))}
+            )) : (
+              <div className="col-span-full text-center py-4 text-muted-foreground text-sm">
+                {isRTL ? 'لا توجد فئات بعد' : 'No categories yet'}
+              </div>
+            )}
           </div>
         </div>
       </section>

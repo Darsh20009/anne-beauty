@@ -909,6 +909,7 @@ const CategoriesTable = memo(() => {
   const { data: categories, isLoading } = useQuery<any[]>({ queryKey: ["/api/categories"] });
   const { toast } = useToast();
   const [newCat, setNewCat] = useState({ name: "", slug: "" });
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -932,6 +933,26 @@ const CategoriesTable = memo(() => {
     }
   });
 
+  const handleImageUpload = async (categoryId: string, file: File) => {
+    setUploadingId(categoryId);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await fetch(`/api/categories/${categoryId}`, {
+        method: "PATCH",
+        body: formData,
+        credentials: "include",
+      });
+      if (res.ok) {
+        queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+        toast({ title: "تم تحديث صورة الفئة" });
+      }
+    } catch {
+      toast({ title: "فشل رفع الصورة", variant: "destructive" });
+    }
+    setUploadingId(null);
+  };
+
   if (isLoading) return <Loader2 className="animate-spin mx-auto" />;
 
   return (
@@ -947,7 +968,8 @@ const CategoriesTable = memo(() => {
             <Input 
               value={newCat.name} 
               onChange={e => setNewCat({...newCat, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})} 
-              className="rounded-none h-10" 
+              className="rounded-none h-10"
+              data-testid="input-category-name"
             />
           </div>
           <div className="space-y-1">
@@ -959,6 +981,7 @@ const CategoriesTable = memo(() => {
               onClick={() => createMutation.mutate(newCat)} 
               disabled={!newCat.name || createMutation.isPending}
               className="w-full rounded-none font-bold uppercase tracking-widest h-10"
+              data-testid="button-add-category"
             >
               {createMutation.isPending ? <Loader2 className="animate-spin" /> : "إضافة فئة"}
             </Button>
@@ -969,10 +992,31 @@ const CategoriesTable = memo(() => {
       <div className="rounded-none border border-black/5 overflow-hidden bg-white">
         <div className="divide-y divide-black/5">
           {categories?.map(cat => (
-            <div key={cat.id} className="p-6 flex justify-between items-center hover:bg-secondary/10 transition-colors">
+            <div key={cat.id} className="p-4 flex justify-between items-center hover:bg-secondary/10 transition-colors">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-secondary/20">
-                  <Tag className="w-4 h-4 opacity-40" />
+                <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-secondary/20 flex items-center justify-center group cursor-pointer border border-dashed border-black/10">
+                  {cat.image ? (
+                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <Tag className="w-5 h-5 opacity-30" />
+                  )}
+                  <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                    {uploadingId === cat.id ? (
+                      <Loader2 className="w-4 h-4 text-white animate-spin" />
+                    ) : (
+                      <span className="text-white text-[9px] font-bold">تغيير</span>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleImageUpload(cat.id, file);
+                      }}
+                      data-testid={`input-category-image-${cat.id}`}
+                    />
+                  </label>
                 </div>
                 <div>
                   <div className="font-black text-sm uppercase tracking-widest">{cat.name}</div>
@@ -984,6 +1028,7 @@ const CategoriesTable = memo(() => {
                 size="icon" 
                 onClick={() => deleteMutation.mutate(cat.id)}
                 className="hover:bg-destructive/10 hover:text-destructive rounded-none"
+                data-testid={`button-delete-category-${cat.id}`}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

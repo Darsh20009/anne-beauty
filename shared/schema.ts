@@ -152,10 +152,11 @@ export type Product = InsertProduct & { _id: string; id: string; createdAt: Date
 export const insertCategorySchema = z.object({
   name: z.string().min(1),
   slug: z.string().min(1),
+  image: z.string().optional(),
 });
 
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
-export type Category = InsertCategory & { _id: string; id: string };
+export type Category = InsertCategory & { _id: string; id: string; image?: string };
 
 // Order Schema
 export const insertOrderSchema = z.object({

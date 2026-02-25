@@ -45,7 +45,7 @@ export async function seed() {
     totalSpent: 0,
     phoneDiscountEligible: false
   });
-  console.log("Admin user created with phone 567326086 and password 20262030");
+  console.log("Admin user seeded successfully");
 
   const categories = await storage.getCategories();
   if (categories.length === 0) {

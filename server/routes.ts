@@ -496,6 +496,38 @@ export async function registerRoutes(
     res.json(invoice);
   });
 
+  // Categories
+  app.get("/api/categories", async (_req, res) => {
+    const categories = await storage.getCategories();
+    res.json(categories);
+  });
+
+  app.post("/api/categories", checkPermission("settings.manage"), async (req, res) => {
+    const category = await storage.createCategory(req.body);
+    res.status(201).json(category);
+  });
+
+  app.patch("/api/categories/:id", checkPermission("settings.manage"), upload.single("image"), async (req, res) => {
+    const { id } = req.params;
+    const updateData: any = {};
+    if (req.body.name) updateData.name = req.body.name;
+    if (req.body.slug) updateData.slug = req.body.slug;
+    if (req.file) {
+      updateData.image = `/uploads/${req.file.filename}`;
+    } else if (req.body.image !== undefined) {
+      updateData.image = req.body.image;
+    }
+    const { CategoryModel } = await import("./models");
+    const category = await CategoryModel.findByIdAndUpdate(id, updateData, { new: true }).lean();
+    if (!category) return res.status(404).json({ error: "Category not found" });
+    res.json({ ...category, id: (category as any)._id.toString() });
+  });
+
+  app.delete("/api/categories/:id", checkPermission("settings.manage"), async (req, res) => {
+    await storage.deleteCategory(req.params.id);
+    res.sendStatus(204);
+  });
+
   // External API Stubs
   app.post("/api/payments/tamara/checkout", async (_req, res) => {
     res.json({ success: true, checkoutUrl: "https://tamara.co/checkout/stub", message: "Tamara integration stubbed" });
