@@ -230,9 +230,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </nav>
-
       <main className="flex-1">{children}</main>
-
       {/* Floating WhatsApp Button */}
       <a
         href="https://api.whatsapp.com/send/?phone=966538512423&text&type=phone_number&app_absent=0"
@@ -243,7 +241,6 @@ export function Layout({ children }: { children: ReactNode }) {
         <span className="font-bold whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-xs transition-all duration-500">{t('contactUs')}</span>
         <SiWhatsapp className="h-6 w-6" />
       </a>
-
       {/* Footer */}
       <footer className="border-t bg-card py-16 mt-24">
         <div className="container grid grid-cols-1 md:grid-cols-4 gap-12 px-4">
@@ -378,7 +375,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 alt="وثيقة العمل الحر" 
                 className="h-16 w-auto object-contain" 
               />
-              <div className="text-xs text-muted-foreground font-semibold">0000203202</div>
+              <div className="text-xs text-muted-foreground font-semibold">FL-941284778</div>
             </a>
           </div>
 
