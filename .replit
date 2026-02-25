@@ -3,3 +3,23 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Run App"
+
+[[workflows.workflow]]
+name = "Run App"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "export PATH=$PATH:$(nix-build -E 'with import <nixpkgs> {}; [ nodejs_20 ]' --no-out-link)/bin && export MONGODB_URI=mongodb://localhost:27017/genmz && npm run dev"
