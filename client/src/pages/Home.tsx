@@ -96,11 +96,11 @@ export default function Home() {
       <MarketingBanners />
 
       {/* Hero Carousel - Full Width Noon-style */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-b from-primary/5 to-white" data-testid="hero-section">
-        <div className="container px-3 sm:px-4 py-4">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <section className="relative w-full overflow-hidden bg-white" data-testid="hero-section">
+        <div className="container px-3 sm:px-4 py-3 sm:py-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* Main Banner */}
-            <div className="lg:col-span-3 relative rounded-2xl overflow-hidden h-[280px] sm:h-[350px] md:h-[420px] group">
+            <div className="lg:col-span-3 relative rounded-2xl sm:rounded-3xl overflow-hidden h-[220px] sm:h-[320px] md:h-[400px] group shadow-lg">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentSlide}
@@ -160,22 +160,22 @@ export default function Home() {
             </div>
 
             {/* Side Promo Cards */}
-            <div className="hidden lg:flex flex-col gap-4">
-              <div className="flex-1 rounded-2xl overflow-hidden relative group cursor-pointer" onClick={() => setLocation('/products')}>
+            <div className="hidden lg:flex flex-col gap-3 sm:gap-4">
+              <div className="flex-1 rounded-2xl sm:rounded-3xl overflow-hidden relative group cursor-pointer shadow-md" onClick={() => setLocation('/products')}>
                 <img src={heroImg3} alt="Promo 1" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex items-end p-4">
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent flex items-end p-5">
                   <div className="text-white">
-                    <p className="text-xs font-bold mb-1">{isRTL ? 'وصل حديثاً' : 'New Arrival'}</p>
-                    <p className="text-sm font-black">{isRTL ? 'مجموعة الربيع' : 'Spring Collection'}</p>
+                    <p className="text-[10px] font-semibold mb-1 text-white/80">{isRTL ? 'وصل حديثاً' : 'New Arrival'}</p>
+                    <p className="text-sm font-bold">{isRTL ? 'مجموعة الربيع' : 'Spring Collection'}</p>
                   </div>
                 </div>
               </div>
-              <div className="flex-1 rounded-2xl overflow-hidden relative group cursor-pointer" onClick={() => setLocation('/products')}>
+              <div className="flex-1 rounded-2xl sm:rounded-3xl overflow-hidden relative group cursor-pointer shadow-md" onClick={() => setLocation('/products')}>
                 <img src={heroImg4} alt="Promo 2" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-end p-5">
                   <div className="text-white">
-                    <p className="text-xs font-bold mb-1">{isRTL ? 'عروض خاصة' : 'Special Offers'}</p>
-                    <p className="text-sm font-black">{isRTL ? 'خصم ٢٠٪' : '20% Off'}</p>
+                    <p className="text-[10px] font-semibold mb-1 text-white/80">{isRTL ? 'عروض خاصة' : 'Special Offers'}</p>
+                    <p className="text-sm font-bold">{isRTL ? 'خصم ٢٠٪' : '20% Off'}</p>
                   </div>
                 </div>
               </div>
@@ -185,10 +185,10 @@ export default function Home() {
       </section>
 
       {/* Categories Strip - Noon style */}
-      <section className="py-6 sm:py-8 bg-white border-b" data-testid="categories-section">
+      <section className="py-6 sm:py-10 bg-white" data-testid="categories-section">
         <div className="container px-3 sm:px-4">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-bold">{isRTL ? 'تسوقي حسب الفئة' : 'Shop by Category'}</h2>
+          <div className="flex items-center justify-between mb-5 sm:mb-8">
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900">{isRTL ? 'تسوقي حسب الفئة' : 'Shop by Category'}</h2>
             <Link href="/products">
               <span className="text-primary text-sm font-semibold hover:underline cursor-pointer flex items-center gap-1" data-testid="link-all-categories">
                 {isRTL ? 'عرض الكل' : 'View All'}
@@ -196,28 +196,29 @@ export default function Home() {
               </span>
             </Link>
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6">
             {categories && categories.length > 0 ? categories.map((cat: any, i: number) => (
               <Link key={cat.id} href={`/products?category=${cat.slug}`}>
                 <motion.div
-                  whileHover={{ y: -4 }}
-                  className="flex flex-col items-center gap-2 cursor-pointer group"
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col items-center gap-2.5 cursor-pointer group"
                   data-testid={`category-${cat.slug}`}
                 >
-                  <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shadow-md group-hover:shadow-xl transition-all border border-gray-100 ${!cat.image ? `bg-gradient-to-br ${categoryColors[i % categoryColors.length]} flex items-center justify-center` : ''}`}>
+                  <div className={`w-[72px] h-[72px] sm:w-24 sm:h-24 rounded-2xl overflow-hidden shadow-md group-hover:shadow-xl transition-all duration-300 ring-2 ring-transparent group-hover:ring-primary/30 ${!cat.image ? `bg-gradient-to-br ${categoryColors[i % categoryColors.length]} flex items-center justify-center` : ''}`}>
                     {cat.image ? (
-                      <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                      <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     ) : (
-                      <Grid3X3 className="h-8 w-8 sm:h-10 sm:w-10 text-white/80" />
+                      <Grid3X3 className="h-7 w-7 sm:h-10 sm:w-10 text-white/80" />
                     )}
                   </div>
-                  <span className="text-xs sm:text-sm font-semibold text-center text-gray-700 group-hover:text-primary transition-colors">
+                  <span className="text-[11px] sm:text-sm font-semibold text-center text-gray-600 group-hover:text-primary transition-colors line-clamp-1">
                     {cat.name}
                   </span>
                 </motion.div>
               </Link>
             )) : (
-              <div className="col-span-full text-center py-4 text-muted-foreground text-sm">
+              <div className="col-span-full text-center py-8 text-gray-400 text-sm">
                 {isRTL ? 'لا توجد فئات بعد' : 'No categories yet'}
               </div>
             )}
@@ -226,22 +227,24 @@ export default function Home() {
       </section>
 
       {/* Flash Deals with Timer */}
-      <section className="py-6 sm:py-10 bg-gradient-to-r from-primary/5 via-white to-primary/5" data-testid="deals-section">
+      <section className="py-6 sm:py-10 bg-gray-50" data-testid="deals-section">
         <div className="container px-3 sm:px-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                <h2 className="text-lg sm:text-2xl font-black text-primary">{isRTL ? 'عروض خاطفة' : 'Flash Deals'}</h2>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-500 flex items-center justify-center">
+                  <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                </div>
+                <h2 className="text-base sm:text-2xl font-bold text-gray-900">{isRTL ? 'عروض خاطفة' : 'Flash Deals'}</h2>
               </div>
-              <div className="flex items-center gap-1 sm:gap-2 bg-primary/10 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2">
-                <Timer className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <div className="flex items-center gap-1 font-mono text-sm sm:text-base font-black text-primary">
-                  <span className="bg-primary text-white rounded-md px-1.5 py-0.5 text-xs sm:text-sm">{String(dealTimer.hours).padStart(2, '0')}</span>
-                  <span>:</span>
-                  <span className="bg-primary text-white rounded-md px-1.5 py-0.5 text-xs sm:text-sm">{String(dealTimer.minutes).padStart(2, '0')}</span>
-                  <span>:</span>
-                  <span className="bg-primary text-white rounded-md px-1.5 py-0.5 text-xs sm:text-sm">{String(dealTimer.seconds).padStart(2, '0')}</span>
+              <div className="flex items-center gap-1 bg-red-50 rounded-xl px-2.5 py-1.5 sm:px-4 sm:py-2 border border-red-100">
+                <Timer className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
+                <div className="flex items-center gap-0.5 sm:gap-1 font-mono text-xs sm:text-sm font-bold text-red-600" dir="ltr">
+                  <span className="bg-red-500 text-white rounded-md px-1.5 py-0.5 min-w-[24px] text-center">{String(dealTimer.hours).padStart(2, '0')}</span>
+                  <span className="text-red-400">:</span>
+                  <span className="bg-red-500 text-white rounded-md px-1.5 py-0.5 min-w-[24px] text-center">{String(dealTimer.minutes).padStart(2, '0')}</span>
+                  <span className="text-red-400">:</span>
+                  <span className="bg-red-500 text-white rounded-md px-1.5 py-0.5 min-w-[24px] text-center">{String(dealTimer.seconds).padStart(2, '0')}</span>
                 </div>
               </div>
             </div>
@@ -261,36 +264,37 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-              {allProductsList.slice(0, 6).map((product) => (
+              {allProductsList.slice(0, 6).map((product, idx) => (
                 <motion.div
                   key={product.id}
                   whileHover={{ y: -4 }}
+                  transition={{ duration: 0.2 }}
                   className="group"
                   data-testid={`deal-product-${product.id}`}
                 >
                   <Link href={`/products/${product.id}`}>
-                    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-100 cursor-pointer">
-                      <div className="relative aspect-square overflow-hidden">
+                    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer">
+                      <div className="relative aspect-square overflow-hidden bg-gray-50">
                         <img
                           src={product.images?.[0] || "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80"}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
-                          <span className="bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg">
-                            -30%
+                        <div className={`absolute top-2 ${isRTL ? 'right-2' : 'left-2'}`}>
+                          <span className="bg-red-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm">
+                            -{[15, 20, 25, 30, 35, 40][idx % 6]}%
                           </span>
                         </div>
                       </div>
-                      <div className="p-2 sm:p-3">
-                        <h3 className="text-xs sm:text-sm font-semibold text-gray-800 line-clamp-2 mb-1">{product.name}</h3>
+                      <div className="p-2.5 sm:p-3">
+                        <h3 className="text-[11px] sm:text-xs font-semibold text-gray-800 line-clamp-2 mb-1.5 leading-relaxed">{product.name}</h3>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-primary font-black text-sm sm:text-base">{Number(product.price).toLocaleString()} {t('currency')}</span>
+                          <span className="text-primary font-bold text-xs sm:text-sm">{Number(product.price).toLocaleString()} {t('currency')}</span>
                         </div>
-                        <div className="mt-1 sm:mt-2 bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                          <div className="bg-primary h-full rounded-full" style={{ width: `${Math.random() * 40 + 40}%` }} />
+                        <div className="mt-2 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                          <div className="bg-gradient-to-r from-red-500 to-red-400 h-full rounded-full" style={{ width: `${65 - idx * 8}%` }} />
                         </div>
-                        <p className="text-[10px] text-gray-500 mt-1">{isRTL ? 'بقي عدد محدود' : 'Limited stock'}</p>
+                        <p className="text-[9px] sm:text-[10px] text-gray-400 mt-1 font-medium">{isRTL ? 'بقي عدد محدود' : 'Limited stock'}</p>
                       </div>
                     </div>
                   </Link>
@@ -332,12 +336,14 @@ export default function Home() {
       </section>
 
       {/* Featured Products - Amazon/Noon Grid */}
-      <section className="py-8 sm:py-12 bg-gray-50" data-testid="featured-section">
+      <section className="py-8 sm:py-12 bg-white" data-testid="featured-section">
         <div className="container px-3 sm:px-4">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
             <div className="flex items-center gap-2 sm:gap-3">
-              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              <h2 className="text-lg sm:text-2xl font-black">{isRTL ? 'الأكثر مبيعاً' : 'Best Sellers'}</h2>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              </div>
+              <h2 className="text-base sm:text-2xl font-bold text-gray-900">{isRTL ? 'الأكثر مبيعاً' : 'Best Sellers'}</h2>
             </div>
             <Link href="/products">
               <Button variant="outline" size="sm" className="rounded-xl font-semibold border-primary/20 text-primary hover:bg-primary/5" data-testid="button-view-all-featured">
@@ -382,7 +388,7 @@ export default function Home() {
       </section>
 
       {/* Trust Badges Strip */}
-      <section className="py-6 sm:py-8 bg-white border-y" data-testid="trust-badges">
+      <section className="py-6 sm:py-8 bg-gray-50 border-y border-gray-100" data-testid="trust-badges">
         <div className="container px-3 sm:px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             <div className="flex items-center gap-3 sm:gap-4">
@@ -428,10 +434,12 @@ export default function Home() {
       {/* New Arrivals Section */}
       <section className="py-8 sm:py-12 bg-white" data-testid="new-arrivals-section">
         <div className="container px-3 sm:px-4">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
             <div className="flex items-center gap-2 sm:gap-3">
-              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              <h2 className="text-lg sm:text-2xl font-black">{isRTL ? 'وصل حديثاً' : 'New Arrivals'}</h2>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
+              </div>
+              <h2 className="text-base sm:text-2xl font-bold text-gray-900">{isRTL ? 'وصل حديثاً' : 'New Arrivals'}</h2>
             </div>
             <Link href="/products">
               <Button variant="outline" size="sm" className="rounded-xl font-semibold border-primary/20 text-primary hover:bg-primary/5" data-testid="button-view-new-arrivals">
@@ -447,24 +455,25 @@ export default function Home() {
                 <Link key={product.id} href={`/products/${product.id}`}>
                   <motion.div
                     whileHover={{ y: -4 }}
-                    className="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all cursor-pointer group"
+                    transition={{ duration: 0.2 }}
+                    className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:border-emerald-200 transition-all cursor-pointer group"
                     data-testid={`new-arrival-${product.id}`}
                   >
-                    <div className="relative aspect-square overflow-hidden">
+                    <div className="relative aspect-square overflow-hidden bg-gray-50">
                       <img
                         src={product.images?.[0] || "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80"}
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className={`absolute top-2 ${isRTL ? 'right-2' : 'left-2'}`}>
-                        <span className="bg-green-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-md">
+                        <span className="bg-emerald-500 text-white text-[8px] sm:text-[9px] font-bold px-2 py-0.5 rounded-md shadow-sm">
                           {isRTL ? 'جديد' : 'NEW'}
                         </span>
                       </div>
                     </div>
-                    <div className="p-2 sm:p-3">
-                      <h3 className="text-xs font-semibold text-gray-800 line-clamp-1 mb-1">{product.name}</h3>
-                      <span className="text-primary font-black text-sm">{Number(product.price).toLocaleString()} {t('currency')}</span>
+                    <div className="p-2.5 sm:p-3">
+                      <h3 className="text-[11px] sm:text-xs font-semibold text-gray-800 line-clamp-1 mb-1">{product.name}</h3>
+                      <span className="text-primary font-bold text-xs sm:text-sm">{Number(product.price).toLocaleString()} {t('currency')}</span>
                     </div>
                   </motion.div>
                 </Link>

@@ -4,7 +4,7 @@ import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { useRoute } from "wouter";
 import { useState, useEffect } from "react";
-import { ShoppingBag, Check } from "lucide-react";
+import { ShoppingBag, Check, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
@@ -152,145 +152,140 @@ export default function ProductDetails() {
 
   return (
     <Layout>
-      <div className="container py-12 sm:py-16 md:py-20 lg:py-24">
-        <div className={`grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 xl:gap-24 items-start ${language === 'ar' ? '' : 'lg:flex-row-reverse'}`}>
+      <div className="bg-white">
+        <div className="container py-6 sm:py-8 md:py-12 px-3 sm:px-4">
+        <div className={`grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start ${language === 'ar' ? '' : 'lg:flex-row-reverse'}`}>
           {/* Image Gallery */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
+            className="space-y-4"
           >
-            <div 
-              className="aspect-[3/4] bg-white overflow-hidden shadow-2xl border border-black/5 group flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 cursor-pointer pt-[1px] pb-[1px] pl-[40px] pr-[40px]"
-              onClick={() => {
-                const img = allImages[currentImageIndex];
-                if (img) window.open(img, '_blank');
-              }}
-            >
-              <div className="relative w-full h-full flex items-center justify-center">
+            <div className="relative aspect-square sm:aspect-[4/5] bg-gray-50 overflow-hidden rounded-2xl sm:rounded-3xl group">
+              <div 
+                className="w-full h-full flex items-center justify-center p-4 sm:p-8 cursor-zoom-in"
+                onClick={() => {
+                  const img = allImages[currentImageIndex];
+                  if (img) window.open(img, '_blank');
+                }}
+              >
                 <img 
                   key={currentImageIndex}
                   src={allImages[currentImageIndex] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80"} 
                   alt={product.name} 
-                  className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-1000"
+                  className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-700"
                 />
               </div>
               
-              {/* Thumbnails */}
-              {allImages.length > 1 && (
-                <div className="flex gap-3 mt-6 overflow-x-auto py-2 w-full justify-center no-scrollbar px-2">
-                  {allImages.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentImageIndex(idx)}
-                      className={`
-                        relative w-16 h-20 flex-shrink-0 border-2 transition-all duration-300 overflow-hidden
-                        ${currentImageIndex === idx ? 'border-black scale-105 shadow-md' : 'border-black/5 opacity-60 hover:opacity-100'}
-                      `}
-                    >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
-                      {currentImageIndex === idx && (
-                        <div className="absolute bottom-0 left-0 w-full h-1 bg-black" />
-                      )}
-                    </button>
-                  ))}
+              {product.isFeatured && (
+                <div className={`absolute top-3 ${language === 'ar' ? 'right-3' : 'left-3'}`}>
+                  <span className="bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-lg shadow-md">
+                    {language === 'ar' ? 'مميز' : 'Featured'}
+                  </span>
                 </div>
               )}
             </div>
+            
+            {/* Thumbnails */}
+            {allImages.length > 1 && (
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto py-1 no-scrollbar">
+                {allImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(idx); }}
+                    className={`
+                      relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-xl overflow-hidden transition-all duration-300
+                      ${currentImageIndex === idx ? 'ring-2 ring-primary shadow-md scale-105' : 'ring-1 ring-gray-200 opacity-60 hover:opacity-100'}
+                    `}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </motion.div>
 
           {/* Details */}
           <div className={`flex flex-col ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-            <div className="border-b border-black/5 pb-6 sm:pb-8 mb-6 sm:mb-8">
-              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 uppercase tracking-tighter">{product.name}</h1>
-              <p className="text-3xl font-light text-primary tracking-tight">
-                {Number(product.price).toLocaleString()} {t('currency')}
-              </p>
+            <div className="mb-4 sm:mb-6">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">{product.name}</h1>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-bold text-primary">
+                  {Number(product.price).toLocaleString()}
+                </span>
+                <span className="text-sm sm:text-base text-primary font-medium">{t('currency')}</span>
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`h-3.5 w-3.5 ${i < 4 ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200'}`} />
+                  ))}
+                </div>
+                <span className="text-xs text-gray-400">(4.0)</span>
+                <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md font-medium">{language === 'ar' ? 'متوفر' : 'In Stock'}</span>
+              </div>
             </div>
 
-            <div className="prose prose-lg max-w-none text-muted-foreground mb-12 font-light leading-relaxed italic">
-              <p>{product.description}</p>
+            <div className="border-t border-b border-gray-100 py-4 mb-6">
+              <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
             </div>
 
             {/* SKU Display */}
             {selectedVariant && selectedVariant.sku && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-12 p-6 bg-black/2 border border-black/5 backdrop-blur-sm"
-                data-testid="section-sku"
-              >
-                <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-black/40">{language === 'ar' ? 'رمز المنتج' : 'Product Code'}</p>
-                <p className="font-mono text-lg font-bold tracking-widest text-black" data-testid="text-product-sku">{selectedVariant.sku}</p>
-              </motion.div>
+              <div className="mb-6 flex items-center gap-2 text-xs text-gray-400" data-testid="section-sku">
+                <span className="font-medium">{language === 'ar' ? 'رمز المنتج:' : 'SKU:'}</span>
+                <span className="font-mono text-gray-500" data-testid="text-product-sku">{selectedVariant.sku}</span>
+              </div>
             )}
 
             {/* Variants - Colors Section */}
-            <div className="space-y-10 mb-12">
+            <div className="space-y-6 mb-6">
               {/* Colors */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-6 text-black/40">{t('colorLabel')}</label>
-                <div className={`flex flex-wrap gap-4 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                <label className="block text-xs font-semibold text-gray-500 mb-3">{t('colorLabel')}: <span className="text-gray-800">{selectedColor}</span></label>
+                <div className={`flex flex-wrap gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
                   {colors.map((color: string) => (
-                    <div key={color} className="relative group">
-                      <button
-                        onClick={() => setSelectedColor(color)}
-                        className={`
-                          relative w-20 h-20 rounded-full overflow-hidden transition-all duration-300 p-0.5 border-2
-                          ${selectedColor === color 
-                            ? 'border-black scale-110 shadow-xl' 
-                            : 'border-transparent hover:border-black/20 hover:scale-105'}
-                        `}
-                        data-testid={`button-color-${color}`}
-                      >
-                        {colorImages[color] ? (
-                          <div className="w-full h-full rounded-full overflow-hidden bg-muted">
-                            <img 
-                              src={colorImages[color]} 
-                              alt={color} 
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-full h-full rounded-full bg-black/5 flex items-center justify-center text-[10px] font-black uppercase text-center px-1">
-                            {color}
-                          </div>
-                        )}
-                        
-                        {selectedColor === color && (
-                          <div className="absolute inset-0 bg-black/10 flex items-center justify-center backdrop-blur-[1px]">
-                            <Check className="h-5 w-5 text-white drop-shadow-md" />
-                          </div>
-                        )}
-                      </button>
-                      
-                      {/* Tooltip-like label */}
-                      <div className={`
-                        absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap transition-all duration-300 pointer-events-none
-                        ${selectedColor === color ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'}
-                      `}>
-                        <span className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-2 py-0.5">
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`
+                        relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden transition-all duration-200
+                        ${selectedColor === color 
+                          ? 'ring-2 ring-primary ring-offset-2 shadow-md' 
+                          : 'ring-1 ring-gray-200 hover:ring-gray-400'}
+                      `}
+                      data-testid={`button-color-${color}`}
+                    >
+                      {colorImages[color] ? (
+                        <img src={colorImages[color]} alt={color} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center text-[9px] font-semibold text-gray-500 text-center px-1">
                           {color}
-                        </span>
-                      </div>
-                    </div>
+                        </div>
+                      )}
+                      {selectedColor === color && (
+                        <div className="absolute inset-0 bg-primary/15 flex items-center justify-center">
+                          <Check className="h-4 w-4 text-primary drop-shadow" />
+                        </div>
+                      )}
+                    </button>
                   ))}
                 </div>
               </div>
 
               {/* Sizes */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-6 text-black/40">{t('sizeLabel')}</label>
-                <div className={`flex flex-wrap gap-4 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                <label className="block text-xs font-semibold text-gray-500 mb-3">{t('sizeLabel')}</label>
+                <div className={`flex flex-wrap gap-2 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
                   {availableSizes.map((size: string) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
                       className={`
-                        px-6 py-3 border-2 rounded-none font-bold uppercase tracking-widest text-sm transition-all duration-300
+                        px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200
                         ${selectedSize === size
-                          ? 'border-black bg-black text-white shadow-lg'
-                          : 'border-black/20 hover:border-black text-black hover:bg-black/5'}
+                          ? 'bg-primary text-white shadow-md shadow-primary/20'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}
                       `}
                       data-testid={`button-size-${size}`}
                     >
@@ -302,32 +297,34 @@ export default function ProductDetails() {
 
               {/* Quantity */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] mb-4 text-black/40">{t('quantityLabel')}</label>
-                <div className={`flex items-center gap-6 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
-                  <button 
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-12 h-12 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-xl font-light"
-                    data-testid="button-decrease-quantity"
-                  >
-                    -
-                  </button>
-                  <span className="text-xl font-light w-12 text-center" data-testid="text-quantity">{quantity}</span>
-                  <button 
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-12 h-12 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-xl font-light"
-                    data-testid="button-increase-quantity"
-                  >
-                    +
-                  </button>
+                <label className="block text-xs font-semibold text-gray-500 mb-3">{t('quantityLabel')}</label>
+                <div className={`flex items-center ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                  <div className="flex items-center bg-gray-100 rounded-xl overflow-hidden">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center hover:bg-gray-200 transition-colors text-lg"
+                      data-testid="button-decrease-quantity"
+                    >
+                      -
+                    </button>
+                    <span className="text-sm font-bold w-10 sm:w-12 text-center" data-testid="text-quantity">{quantity}</span>
+                    <button 
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center hover:bg-gray-200 transition-colors text-lg"
+                      data-testid="button-increase-quantity"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Installment Plans Section */}
-            <div className="mb-12 p-8 bg-gradient-to-br from-primary/5 to-transparent border border-primary/10 backdrop-blur-sm" data-testid="section-installment-plans">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] mb-6 text-black/40">{language === 'ar' ? 'خيارات التقسيط' : 'Installment Plans'}</p>
-              <div className="space-y-4">
-                <div className="p-4 bg-white/80 border border-black/5" data-testid="card-installment-tamara">
+            <div className="mb-6 p-4 sm:p-5 bg-gray-50 rounded-2xl border border-gray-100" data-testid="section-installment-plans">
+              <p className="text-xs font-semibold text-gray-500 mb-3">{language === 'ar' ? 'خيارات التقسيط' : 'Installment Plans'}</p>
+              <div className="space-y-2">
+                <div className="p-3 bg-white rounded-xl border border-gray-100" data-testid="card-installment-tamara">
                   <div 
                     className="tamara-product-widget" 
                     data-price={product.price}
@@ -335,7 +332,7 @@ export default function ProductDetails() {
                     data-country="SA"
                   />
                 </div>
-                <div className="p-4 bg-white/80 border border-black/5" data-testid="card-installment-tabby">
+                <div className="p-3 bg-white rounded-xl border border-gray-100" data-testid="card-installment-tabby">
                   <div 
                     className="tabby-product-widget" 
                     data-price={product.price}
@@ -343,9 +340,9 @@ export default function ProductDetails() {
                     data-lang={language}
                   />
                 </div>
-                <div className="flex items-center justify-between p-4 bg-white/80 border border-black/5" data-testid="card-installment-instant">
-                  <span className="font-bold text-sm">{language === 'ar' ? 'التقسيط الفوري' : 'Instant Installment'}</span>
-                  <span className="text-primary font-bold">{language === 'ar' ? 'متاح عند الدفع' : 'Available at Checkout'}</span>
+                <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100" data-testid="card-installment-instant">
+                  <span className="font-semibold text-xs sm:text-sm text-gray-700">{language === 'ar' ? 'التقسيط الفوري' : 'Instant Installment'}</span>
+                  <span className="text-primary font-semibold text-xs sm:text-sm">{language === 'ar' ? 'متاح عند الدفع' : 'Available at Checkout'}</span>
                 </div>
               </div>
             </div>
@@ -373,9 +370,10 @@ export default function ProductDetails() {
 
             <Button 
               size="lg" 
-              className="w-full h-20 text-sm font-bold uppercase tracking-[0.3em] rounded-none bg-black text-white hover-elevate active-elevate-2 border-none relative overflow-visible"
+              className="w-full h-14 sm:h-16 text-sm font-bold rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 border-none relative overflow-visible transition-all"
               onClick={handleAddToCart}
               disabled={isAnimating}
+              data-testid="button-add-to-cart"
             >
               {isAnimating && (
                 <motion.div
@@ -390,7 +388,7 @@ export default function ProductDetails() {
                   transition={{ duration: 0.8, ease: "easeInOut" }}
                   className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
                 >
-                  <div className="w-20 h-20 bg-white shadow-2xl p-1 border border-black/5">
+                  <div className="w-16 h-16 bg-white shadow-2xl rounded-xl p-1">
                     <img 
                       src={selectedVariant?.image || product.images[0]} 
                       alt="" 
@@ -399,16 +397,32 @@ export default function ProductDetails() {
                   </div>
                 </motion.div>
               )}
-              {language === 'ar' ? <ShoppingBag className="ml-3 h-5 w-5" /> : <ShoppingBag className="mr-3 h-5 w-5" />}
+              <ShoppingBag className={`h-5 w-5 ${language === 'ar' ? 'ml-2' : 'mr-2'}`} />
               {t('addToCart')}
             </Button>
 
-            <div className="mt-12 pt-8 border-t border-black/5 flex flex-col gap-4 text-xs font-bold uppercase tracking-widest text-black/40">
-               <div className={`flex items-center gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}><Check className="h-4 w-4 text-black"/> {t('originalProduct')}</div>
-               <div className={`flex items-center gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}><Check className="h-4 w-4 text-black"/> {t('luxuryPackaging')}</div>
-               <div className={`flex items-center gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}><Check className="h-4 w-4 text-black"/> {t('secureShipping')}</div>
+            <div className="mt-6 pt-5 border-t border-gray-100 grid grid-cols-3 gap-3">
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Check className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <span className="text-[10px] font-medium text-gray-500">{t('originalProduct')}</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Check className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <span className="text-[10px] font-medium text-gray-500">{t('luxuryPackaging')}</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Check className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <span className="text-[10px] font-medium text-gray-500">{t('secureShipping')}</span>
+              </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </Layout>
