@@ -1,6 +1,6 @@
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
+import logoImg from "@/assets/logo.png";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -108,7 +108,7 @@ export default function Login() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <Link href="/">
-             <img src={logoImg} alt="Gen M & Z" className="h-24 w-auto mx-auto mb-6 cursor-pointer object-contain" />
+             <img src={logoImg} alt="Anne Beauty" className="h-24 w-auto mx-auto mb-6 cursor-pointer object-contain" />
           </Link>
           <p className="text-muted-foreground">سجل دخولك برقم الهاتف للمتابعة</p>
         </div>

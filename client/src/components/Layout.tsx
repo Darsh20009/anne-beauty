@@ -98,9 +98,9 @@ export function Layout({ children }: { children: ReactNode }) {
                 <div className="p-8 border-t bg-[#fafafa] pb-12">
                   <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground mb-6">{t('connectWithUs')}</p>
                   <div className={`flex gap-8 ${language === 'ar' ? 'justify-end' : 'justify-start'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
-                    <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors active:scale-125 transition-transform"><Instagram className="h-8 w-8" /></a>
-                    <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors active:scale-125 transition-transform"><SiX className="h-8 w-8" /></a>
-                    <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors active:scale-125 transition-transform"><SiTiktok className="h-8 w-8" /></a>
+                    <a href="https://www.instagram.com/annebeauty.sa/" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors active:scale-125 transition-transform"><Instagram className="h-8 w-8" /></a>
+                    <a href="https://x.com/AnneBeautySA" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors active:scale-125 transition-transform"><SiX className="h-8 w-8" /></a>
+                    <a href="https://www.tiktok.com/@annebeauty.sa" target="_blank" rel="noreferrer" className="text-black hover:text-primary transition-colors active:scale-125 transition-transform"><SiTiktok className="h-8 w-8" /></a>
                   </div>
                 </div>
               </SheetContent>
@@ -307,19 +307,19 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
         <div className="container mt-16 pt-8 border-t text-center text-sm text-muted-foreground px-4">
           <div className="flex justify-center flex-wrap gap-4 mt-8">
-            <a href="https://www.instagram.com/genmz.sa/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white rounded-full hover:scale-105 transition-transform shadow-lg">
+            <a href="https://www.instagram.com/annebeauty.sa/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white rounded-full hover:scale-105 transition-transform shadow-lg">
               <Instagram className="h-4 w-4" />
               <span className="font-bold">Instagram</span>
             </a>
-            <a href="https://x.com/GenMZsa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:scale-105 transition-transform shadow-lg border border-white/10">
+            <a href="https://x.com/AnneBeautySA" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:scale-105 transition-transform shadow-lg border border-white/10">
               <SiX className="h-4 w-4" />
               <span className="font-bold">X</span>
             </a>
-            <a href="https://www.snapchat.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-[#FFFC00] text-black rounded-full hover:scale-105 transition-transform shadow-lg">
+            <a href="https://www.snapchat.com/@annebeauty.sa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-[#FFFC00] text-black rounded-full hover:scale-105 transition-transform shadow-lg">
               <SiSnapchat className="h-4 w-4" />
               <span className="font-bold">Snapchat</span>
             </a>
-            <a href="https://www.tiktok.com/@genmz.sa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:scale-105 transition-transform shadow-lg border border-white/10">
+            <a href="https://www.tiktok.com/@annebeauty.sa" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:scale-105 transition-transform shadow-lg border border-white/10">
               <SiTiktok className="h-4 w-4" />
               <span className="font-bold">TikTok</span>
             </a>

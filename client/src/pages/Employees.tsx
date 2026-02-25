@@ -309,12 +309,28 @@ export default function Employees() {
               <div className="space-y-3">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase">الصلاحيات الممنوحة</p>
                 <div className="flex flex-wrap gap-2">
-                  {(emp.permissions || ["orders"]).map((p: string) => (
-                    <Badge key={p} variant="secondary" className="text-[9px] rounded-lg">
-                      <Shield className="w-3 h-3 ml-1" />
-                      {p === "orders" ? "الطلبات" : p}
-                    </Badge>
-                  ))}
+                  {(emp.permissions || ["orders"]).map((p: string) => {
+                    const permLabels: Record<string, string> = {
+                      "orders.view": "عرض الطلبات",
+                      "orders.edit": "تعديل الطلبات",
+                      "orders.refund": "استرجاع الطلبات",
+                      "products.view": "عرض المنتجات",
+                      "products.edit": "تعديل المنتجات",
+                      "customers.view": "عرض العملاء",
+                      "wallet.adjust": "إدارة المحفظة",
+                      "reports.view": "التقارير",
+                      "staff.manage": "إدارة الموظفين",
+                      "pos.access": "نقطة البيع",
+                      "settings.manage": "الإعدادات",
+                      "orders": "الطلبات",
+                    };
+                    return (
+                      <Badge key={p} variant="secondary" className="text-[9px] rounded-lg gap-1">
+                        <Shield className="w-3 h-3" />
+                        {permLabels[p] || p}
+                      </Badge>
+                    );
+                  })}
                 </div>
               </div>
               

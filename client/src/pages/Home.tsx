@@ -114,19 +114,25 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className={language === 'ar' ? "text-right z-20" : "text-left z-20"}
           >
-            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-primary mb-3 sm:mb-4 uppercase">{t('newCollection')}</span>
+            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-primary mb-3 sm:mb-4 uppercase">
+              {language === 'ar' ? '✦ مجموعة المكياج الجديدة' : '✦ New Makeup Collection'}
+            </span>
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[0.9] mb-6 sm:mb-8 text-black tracking-tighter">
               ANNE BEAUTY
-              <span className="block text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-3 md:mt-4 font-light text-muted-foreground italic font-serif">Wake up and Make up</span>
-              <span className="block text-sm md:text-base mt-2 font-bold text-primary">Cosmetics by Alanod +</span>
+              <span className="block text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-3 md:mt-4 font-light text-primary italic font-serif">Unleash Your Inner Glow</span>
+              <span className="block text-sm md:text-base mt-2 font-bold text-muted-foreground">
+                {language === 'ar' ? 'تجميل · رعاية · أناقة' : 'Beauty · Care · Elegance'}
+              </span>
             </h1>
             <p className={`text-muted-foreground text-sm sm:text-base md:text-lg lg:text-xl mb-8 sm:mb-10 md:mb-12 max-w-md ${language === 'ar' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'} leading-relaxed font-light`}>
-              {t('heroDesc')}
+              {language === 'ar' 
+                ? 'اكتشفي عالم الجمال مع آن بيوتي. تشكيلات مكياج حصرية مختارة بعناية لتناسب ذوقك الرفيع وتُبرز جمالك الطبيعي.'
+                : 'Discover the world of beauty with Anne Beauty. Exclusive makeup collections carefully curated to match your refined taste.'}
             </p>
             <div className={`flex gap-4 sm:gap-6 flex-wrap ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
               <Link href="/products">
-                <Button size="lg" className="px-6 sm:px-8 md:px-10 py-6 sm:py-7 md:py-8 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-black text-white border-none active-elevate-2">
-                  {t('discoverCollection')} {language === 'ar' ? <ChevronLeft className="mr-2 sm:mr-3 h-4 sm:h-5 w-4 sm:w-5 rotate-180" /> : <ChevronRight className="ml-2 sm:ml-3 h-4 sm:h-5 w-4 sm:w-5" />}
+                <Button size="lg" className="px-6 sm:px-8 md:px-10 py-6 sm:py-7 md:py-8 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] rounded-none shadow-2xl hover-elevate transition-all bg-primary text-white border-none">
+                  {language === 'ar' ? 'تسوقي الآن' : 'Shop Now'} {language === 'ar' ? <ChevronLeft className="mr-2 sm:mr-3 h-4 sm:h-5 w-4 sm:w-5" /> : <ChevronRight className="ml-2 sm:ml-3 h-4 sm:h-5 w-4 sm:w-5" />}
                 </Button>
               </Link>
             </div>
@@ -155,7 +161,7 @@ export default function Home() {
       </section>
 
       {/* Trust Badges */}
-      <section className="py-24 bg-white border-y border-black/5 overflow-hidden">
+      <section className="py-24 bg-white border-y border-primary/5 overflow-hidden">
         <div className="container px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
             <motion.div 
@@ -164,11 +170,15 @@ export default function Home() {
               viewport={{ once: true }}
               className="text-center group"
             >
-              <div className="w-20 h-20 bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500">
-                <Star className="w-8 h-8 text-black" />
+              <div className="w-20 h-20 bg-primary/8 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500">
+                <Star className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-black uppercase tracking-widest mb-4">{t('originalProduct')}</h3>
-              <p className="text-muted-foreground font-light italic">{language === 'ar' ? 'نضمن لك جودة استثنائية وتصاميم حصرية لن تجدها في مكان آخر.' : 'We guarantee exceptional quality and exclusive designs found nowhere else.'}</p>
+              <h3 className="text-xl font-black uppercase tracking-widest mb-4">
+                {language === 'ar' ? 'منتجات أصيلة 100%' : '100% Authentic'}
+              </h3>
+              <p className="text-muted-foreground font-light italic">
+                {language === 'ar' ? 'جميع منتجاتنا أصلية 100٪ من أفضل ماركات التجميل العالمية.' : 'All our products are 100% authentic from the finest global beauty brands.'}
+              </p>
             </motion.div>
 
             <motion.div 
@@ -178,11 +188,15 @@ export default function Home() {
               transition={{ delay: 0.1 }}
               className="text-center group"
             >
-              <div className="w-20 h-20 bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500">
-                <Truck className="w-8 h-8 text-black" />
+              <div className="w-20 h-20 bg-primary/8 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500">
+                <Truck className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-black uppercase tracking-widest mb-4">{t('secureShipping')}</h3>
-              <p className="text-muted-foreground font-light italic">{language === 'ar' ? 'توصيل سريع وآمن لجميع مناطق المملكة مع تغليف فاخر يحمي مشترياتك.' : 'Fast and secure delivery to all regions with luxury packaging to protect your purchases.'}</p>
+              <h3 className="text-xl font-black uppercase tracking-widest mb-4">
+                {language === 'ar' ? 'توصيل سريع وآمن' : 'Fast & Safe Delivery'}
+              </h3>
+              <p className="text-muted-foreground font-light italic">
+                {language === 'ar' ? 'توصيل لجميع مناطق المملكة مع تغليف فاخر يحمي منتجاتك.' : 'Delivery to all Saudi regions with luxury packaging to protect your beauty products.'}
+              </p>
             </motion.div>
 
             <motion.div 
@@ -192,11 +206,15 @@ export default function Home() {
               transition={{ delay: 0.2 }}
               className="text-center group"
             >
-              <div className="w-20 h-20 bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500">
-                <ShieldCheck className="w-8 h-8 text-black" />
+              <div className="w-20 h-20 bg-primary/8 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500">
+                <ShieldCheck className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-black uppercase tracking-widest mb-4">{t('goldenGuarantee')}</h3>
-              <p className="text-muted-foreground font-light italic">{t('goldenGuaranteeDesc')}</p>
+              <h3 className="text-xl font-black uppercase tracking-widest mb-4">
+                {language === 'ar' ? 'ضمان الجودة' : 'Quality Guarantee'}
+              </h3>
+              <p className="text-muted-foreground font-light italic">
+                {language === 'ar' ? 'ضمان استرجاع خلال 7 أيام إذا لم تكوني راضية عن المنتج.' : '7-day return guarantee if you are not satisfied with your product.'}
+              </p>
             </motion.div>
           </div>
         </div>
@@ -343,26 +361,32 @@ export default function Home() {
       </section>
 
       {/* Brand Story / CTA */}
-      <section className="relative py-48 overflow-hidden bg-black text-white">
-        <div className="absolute inset-0 opacity-20 grayscale">
+      <section className="relative py-48 overflow-hidden text-white" style={{ background: "linear-gradient(135deg, #6b1219 0%, #8B1D24 50%, #a52330 100%)" }}>
+        <div className="absolute inset-0 opacity-10">
           <img 
-            src="https://images.unsplash.com/photo-1441984908747-d4121882c9b6?auto=format&fit=crop&q=80" 
-            alt="Store background" 
+            src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80" 
+            alt="Beauty background" 
             className="w-full h-full object-cover"
           />
         </div>
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, transparent 0%, rgba(107,18,25,0.6) 100%)" }} />
         <div className="container px-4 relative z-10 text-center max-w-4xl mx-auto">
           <motion.div
              initial={{ opacity: 0, scale: 0.9 }}
              whileInView={{ opacity: 1, scale: 1 }}
              viewport={{ once: true }}
           >
-            <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter mb-12 leading-[0.9]">{language === 'ar' ? 'أناقة تتحدث عنك' : 'Elegance That Speaks For You'}</h2>
-            <p className="text-2xl font-light italic mb-16 opacity-60 leading-relaxed">{t('brandStoryDesc')}</p>
+            <span className="block text-xs font-bold tracking-[0.4em] uppercase opacity-60 mb-6">Anne Beauty</span>
+            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-12 leading-[0.9]">
+              {language === 'ar' ? 'جمالك يبدأ من هنا' : 'Your Beauty Starts Here'}
+            </h2>
+            <p className="text-xl font-light italic mb-16 opacity-70 leading-relaxed">
+              {language === 'ar' ? 'اكتشفي أحدث تشكيلات المكياج والعناية بالبشرة. منتجات مختارة بعناية لتُبرز جمالك الطبيعي.' : 'Discover the latest makeup and skincare collections. Products carefully chosen to enhance your natural beauty.'}
+            </p>
             <Link href="/products">
-              <Button size="lg" className="h-20 px-16 text-sm font-black uppercase tracking-[0.4em] rounded-none bg-white text-black hover:bg-transparent hover:text-white border-2 border-white transition-all duration-500">
+              <Button size="lg" className="h-20 px-16 text-sm font-black uppercase tracking-[0.4em] rounded-none bg-white text-primary hover:bg-white/90 border-2 border-white transition-all duration-500">
                 <ShoppingBag className={`${language === 'ar' ? 'ml-3' : 'mr-3'} h-5 w-5`} />
-                {language === 'ar' ? 'ابدأ التسوق الآن' : 'Start Shopping Now'}
+                {language === 'ar' ? 'تسوقي الآن' : 'Shop Now'}
               </Button>
             </Link>
           </motion.div>

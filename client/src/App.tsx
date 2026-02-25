@@ -140,7 +140,7 @@ function AppContent() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="genmz-theme">
+      <ThemeProvider defaultTheme="light" storageKey="annebeauty-theme">
         <TooltipProvider>
           <AuthProvider>
             <Toaster />

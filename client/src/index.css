@@ -45,38 +45,38 @@
     @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
   }
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-emerald-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-rose-500;
   }
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
+  --background: 354 20% 8%;
+  --foreground: 45 40% 96%;
  
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
+  --card: 354 20% 8%;
+  --card-foreground: 45 40% 96%;
  
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
+  --popover: 354 20% 8%;
+  --popover-foreground: 45 40% 96%;
  
-  --primary: 161 94% 30%;
-  --primary-foreground: 222.2 47.4% 11.2%;
+  --primary: 354 70% 45%;
+  --primary-foreground: 45 40% 96%;
  
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 354 15% 15%;
+  --secondary-foreground: 45 40% 96%;
  
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
+  --muted: 354 15% 15%;
+  --muted-foreground: 354 10% 60%;
  
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 354 15% 15%;
+  --accent-foreground: 45 40% 96%;
  
   --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 45 40% 96%;
  
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 161 94% 30%;
+  --border: 354 15% 20%;
+  --input: 354 15% 20%;
+  --ring: 354 70% 45%;
 }
 
 @layer base {

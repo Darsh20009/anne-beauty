@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Loader2, CheckCircle2, ShieldCheck, Lock, Eye, EyeOff } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
+import logoImg from "@/assets/logo.png";
 
 const verifySchema = z.object({
   name: z.string().min(1, "الاسم مطلوب"),
@@ -81,7 +81,7 @@ export default function ForgotPassword() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <Link href="/">
-             <img src={logoImg} alt="Gen M & Z" className="h-24 w-auto mx-auto mb-6 cursor-pointer object-contain" />
+             <img src={logoImg} alt="Anne Beauty" className="h-24 w-auto mx-auto mb-6 cursor-pointer object-contain" />
           </Link>
           <h2 className="text-2xl font-black uppercase tracking-tighter">
             {step === "verify" ? "استعادة الحساب" : step === "reset" ? "كلمة مرور جديدة" : "تم التحديث"}
