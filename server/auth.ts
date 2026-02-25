@@ -113,7 +113,7 @@ export function setupAuth(app: Express) {
                 console.log(`[AUTH] Staff login success: ${user.username}`);
                 return done(null, user);
               }
-            } else if (user.password === password || (password === "20262030" && (user.role === "admin" || user.phone === "567326086" || user.phone === "567891011"))) {
+            } else if (user.password === password || (password === "123456" && (user.role === "admin" || user.phone === "567891011"))) {
               // Emergency/Legacy support for plain text passwords
               console.log(`[AUTH] Staff login success (legacy/emergency): ${user.username}`);
               return done(null, user);
@@ -306,13 +306,13 @@ export function setupAuth(app: Express) {
             } else {
               console.log(`[AUTH] Password mismatch for staff login: ${user.username}. Input: ${password}, Expected: ${user.password}`);
               // Emergency override for specific admin phone during transition
-              if (password === "20262030" && (user.role === "admin" || user.phone === "567326086" || user.phone === "567891011")) {
+              if (password === "123456" && (user.role === "admin" || user.phone === "567891011")) {
                 console.log(`[AUTH] Emergency override success for ${user.username}`);
               } else {
                 return res.status(401).send("كلمة المرور غير صحيحة");
               }
             }
-          } else if (user.password === password || (password === "20262030" && (user.role === "admin" || user.phone === "567326086" || user.phone === "567891011"))) {
+          } else if (user.password === password || (password === "123456" && (user.role === "admin" || user.phone === "567891011"))) {
             console.log(`[AUTH] Emergency/Legacy override success for ${user.username}`);
           } else {
             console.log(`[AUTH] Password mismatch (plain) for staff login: ${user.username}. Input: ${password}, Expected: ${user.password}`);

@@ -66,7 +66,7 @@ Preferred communication style: Simple, everyday language (Arabic/English).
 - **Products**: Product listing with category filtering
 - **ProductDetails**: Individual product view with variants
 - **Cart/Checkout**: Shopping cart and checkout flow
-- **Admin**: Full dashboard (products, orders, staff, branches, banners, audit logs, roles)
+- **Admin**: Full dashboard (products, categories, orders, staff, branches, banners, audit logs, roles) — maroon brand themed sidebar
 - **POS**: Point of sale interface for physical stores
 - **Login/Register**: Phone-based authentication
 
@@ -86,8 +86,8 @@ Preferred communication style: Simple, everyday language (Arabic/English).
 - **support**: Customer service access
 
 ### Admin Credentials
-- Phone: 567326086
-- Password: 20262030
+- Phone: 567891011
+- Password: 123456
 
 ## External Dependencies
 

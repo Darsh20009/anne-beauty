@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct, orderStatuses, employeePermissions, insertUserSchema, type InsertUser } from "@shared/schema";
 import { api } from "@shared/routes";
-import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag, Edit, ArrowRight, LogOut, Package, Building, User as UserIcon, History, Monitor, Clock } from "lucide-react";
+import { Loader2, Plus, DollarSign, ShoppingCart, TrendingUp, BarChart3, ArrowUpRight, Trash2, Search, Filter, ChevronDown, CheckCircle2, XCircle, Truck, PackageCheck, AlertCircle, LayoutGrid, Tag, Edit, ArrowRight, LogOut, Package, Building, User as UserIcon, History, Monitor, Clock, Layers } from "lucide-react";
 import { Link } from "wouter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -2371,17 +2371,18 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
     { id: "branches", label: "الفروع", icon: Building },
     { id: "customers", label: "العملاء", icon: Tag },
     { id: "coupons", label: "أكواد الخصم", icon: DollarSign },
+    { id: "categories", label: "الفئات", icon: Layers },
     { id: "marketing", label: "التسويق", icon: LayoutGrid },
     { id: "logs", label: "سجل العمليات", icon: History },
   ];
 
   return (
     <Sidebar side="right" className="border-r border-black/5">
-      <SidebarContent className="bg-[#059467] flex flex-col h-full">
+      <SidebarContent className="bg-[#8B1D24] flex flex-col h-full">
         <div className="flex-1">
           <div className="p-6">
-            <h2 className="text-xl font-black uppercase tracking-tighter text-white">M&Z STORE</h2>
-            <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest mt-1">Control Panel</p>
+            <h2 className="text-xl font-black tracking-tighter text-white">آن بيوتي</h2>
+            <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest mt-1">لوحة التحكم</p>
           </div>
           <SidebarGroup>
             <SidebarGroupContent>
@@ -2391,7 +2392,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
                     {item.url ? (
                       <SidebarMenuButton 
                         asChild
-                        className="h-12 px-6 rounded-none text-white/70 hover:text-white hover:bg-black/20 transition-all"
+                        className="h-12 px-6 rounded-none text-white/70 hover:text-white hover:bg-white/10 transition-all"
                       >
                         <Link href={item.url} onClick={() => setOpenMobile(false)}>
                           <item.icon className="h-4 w-4 ml-3" />
@@ -2405,7 +2406,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
                           setOpenMobile(false);
                         }}
                         data-active={activeTab === item.id}
-                        className="h-12 px-6 rounded-none data-[active=true]:bg-black data-[active=true]:text-white text-white/70 hover:text-white hover:bg-black/20 transition-all"
+                        className="h-12 px-6 rounded-none data-[active=true]:bg-black/30 data-[active=true]:text-white text-white/70 hover:text-white hover:bg-white/10 transition-all"
                       >
                         <item.icon className="h-4 w-4 ml-3" />
                         <span className="font-bold text-xs uppercase tracking-widest">{item.label}</span>
@@ -2421,7 +2422,7 @@ const AdminSidebar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
         <div className="p-4 border-t border-white/10 mt-auto">
           <Button 
             variant="ghost" 
-            className="w-full h-12 px-6 rounded-none text-white/70 hover:text-white hover:bg-black/20 justify-start gap-3"
+            className="w-full h-12 px-6 rounded-none text-white/70 hover:text-white hover:bg-white/10 justify-start gap-3"
             onClick={() => logout()}
           >
             <LogOut className="h-4 w-4" />
@@ -2466,6 +2467,7 @@ export default function Admin() {
                   {activeTab === "branches" && "إدارة الفروع"}
                   {activeTab === "customers" && "المستخدمين"}
                   {activeTab === "coupons" && "أكواد الخصم"}
+                  {activeTab === "categories" && "إدارة الفئات"}
                   {activeTab === "logs" && "سجل العمليات"}
                 </h1>
               </div>
@@ -2483,6 +2485,7 @@ export default function Admin() {
                 {activeTab === "shifts" && <ShiftsManagement />}
                 {activeTab === "customers" && <CustomersTable />}
                 {activeTab === "coupons" && <CouponsTable />}
+                {activeTab === "categories" && <CategoriesTable />}
                 {activeTab === "marketing" && <MarketingManagement />}
                 {activeTab === "logs" && <AdminAuditLogs />}
               </div>
