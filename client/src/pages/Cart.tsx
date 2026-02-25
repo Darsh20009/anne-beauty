@@ -110,7 +110,7 @@ export default function Cart() {
             {/* Cart Items */}
             <div className="lg:col-span-8 space-y-6">
               {items.map((item) => (
-                <div key={`${item.productId}-${item.variantSku}`} className="group relative bg-white p-6 shadow-sm hover:shadow-md transition-all duration-500 border border-black/[0.02]">
+                <div key={item.lineId} className="group relative bg-white p-6 shadow-sm hover:shadow-md transition-all duration-500 border border-black/[0.02]">
                   <div className="flex gap-4 sm:gap-6 md:gap-8">
                     <div className="w-20 sm:w-24 md:w-28 lg:w-36 aspect-[3/4] bg-muted overflow-hidden shrink-0 border border-black/5">
                       <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -121,7 +121,7 @@ export default function Cart() {
                         <div className="flex justify-between items-start gap-2">
                           <h3 className="font-black text-sm sm:text-base md:text-lg lg:text-xl uppercase tracking-tighter leading-none">{item.title}</h3>
                           <button 
-                            onClick={() => removeItem(item.productId, item.variantSku)}
+                            onClick={() => removeItem(item.lineId)}
                             className="text-black/20 hover:text-red-500 transition-colors"
                           >
                             <Trash2 className="h-5 w-5" />
@@ -130,6 +130,28 @@ export default function Cart() {
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">
                           {item.color} <span className="mx-2 opacity-20">|</span> {item.size}
                         </p>
+                        {item.selectedOptions && item.selectedOptions.length > 0 && (
+                          <div className="space-y-1 mt-1">
+                            {item.selectedOptions.map((opt, idx) => (
+                              <p key={idx} className="text-[9px] text-black/50">
+                                <span className="font-semibold">{opt.optionName}:</span> {opt.selectedValues.join(', ')}
+                                {opt.priceAdjustment > 0 && <span className="text-primary mr-1">(+{opt.priceAdjustment} {t('currency')})</span>}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                        {item.customerNote && (
+                          <p className="text-[9px] text-black/40 mt-1">
+                            <span className="font-semibold">{language === 'ar' ? 'ملاحظة:' : 'Note:'}</span> {item.customerNote}
+                          </p>
+                        )}
+                        {item.attachedFile && (
+                          <p className="text-[9px] text-primary mt-1">
+                            <a href={item.attachedFile} target="_blank" rel="noopener noreferrer" className="underline">
+                              {language === 'ar' ? 'ملف مرفق' : 'Attached file'}
+                            </a>
+                          </p>
+                        )}
                         <div className="pt-4">
                           <span className="font-black text-xl tracking-tight">{(item.price * item.quantity).toLocaleString()} {t('currency')}</span>
                         </div>
@@ -138,14 +160,14 @@ export default function Cart() {
                       <div className={`flex items-center gap-8 mt-6 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
                         <div className="flex items-center bg-black/5 p-1 rounded-none">
                           <button 
-                            onClick={() => updateQuantity(item.productId, item.variantSku, Math.max(1, item.quantity - 1))}
+                            onClick={() => updateQuantity(item.lineId, Math.max(1, item.quantity - 1))}
                             className="w-10 h-10 flex items-center justify-center hover:bg-white transition-all text-lg font-light"
                           >
                             -
                           </button>
                           <span className="text-sm font-black w-10 text-center">{item.quantity}</span>
                           <button 
-                            onClick={() => updateQuantity(item.productId, item.variantSku, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.lineId, item.quantity + 1)}
                             className="w-10 h-10 flex items-center justify-center hover:bg-white transition-all text-lg font-light"
                           >
                             +

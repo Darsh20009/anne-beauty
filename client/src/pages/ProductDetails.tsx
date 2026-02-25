@@ -1,13 +1,14 @@
 import { Layout } from "@/components/Layout";
 import { useProduct } from "@/hooks/use-products";
-import { useCart } from "@/hooks/use-cart";
+import { useCart, type SelectedCustomOption } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { useRoute } from "wouter";
 import { useState, useEffect } from "react";
-import { ShoppingBag, Check, Star } from "lucide-react";
+import { ShoppingBag, Check, Star, Upload, FileText, MessageSquare, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
+import { Textarea } from "@/components/ui/textarea";
 
 // Generate unique UUID for Tamara widget
 const generateUUID = () => {
@@ -31,6 +32,10 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [selectedCustomOptions, setSelectedCustomOptions] = useState<Record<string, string[]>>({});
+  const [customerNote, setCustomerNote] = useState("");
+  const [attachedFile, setAttachedFile] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Collect all unique images (product images only, excluding variant images as per request)
   const allImages = product?.images || [];
@@ -139,14 +144,100 @@ export default function ProductDetails() {
     }
   };
 
+  const handleCustomOptionToggle = (optionId: string, value: string, type: string) => {
+    setSelectedCustomOptions(prev => {
+      const current = prev[optionId] || [];
+      if (type === "single") {
+        return { ...prev, [optionId]: current.includes(value) ? [] : [value] };
+      }
+      if (current.includes(value)) {
+        return { ...prev, [optionId]: current.filter(v => v !== value) };
+      }
+      return { ...prev, [optionId]: [...current, value] };
+    });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: language === 'ar' ? "الملف كبير جداً (الحد الأقصى 10 ميجا)" : "File too large (max 10MB)", variant: "destructive" });
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error();
+      const { url } = await res.json();
+      setAttachedFile(url);
+      toast({ title: language === 'ar' ? "تم رفع الملف بنجاح" : "File uploaded" });
+    } catch {
+      toast({ title: language === 'ar' ? "فشل رفع الملف" : "Upload failed", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const getOptionsExtraPrice = () => {
+    if (!product?.customOptions) return 0;
+    let extra = 0;
+    product.customOptions.forEach((opt: any) => {
+      const selected = selectedCustomOptions[opt.id] || [];
+      opt.options.forEach((choice: any) => {
+        if (selected.includes(choice.label)) {
+          extra += choice.priceAdjustment || 0;
+        }
+      });
+    });
+    return extra;
+  };
+
   const handleAddToCart = () => {
     if (!selectedVariant) return;
+
+    if (product.customOptions?.length) {
+      const missingRequired = product.customOptions.filter((opt: any) => 
+        opt.required && !(selectedCustomOptions[opt.id]?.length)
+      );
+      if (missingRequired.length > 0) {
+        toast({
+          title: language === 'ar' ? "يرجى اختيار جميع الخيارات المطلوبة" : "Please select all required options",
+          description: missingRequired.map((o: any) => o.name).join(", "),
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    const optionsForCart: SelectedCustomOption[] = [];
+    if (product.customOptions?.length) {
+      product.customOptions.forEach((opt: any) => {
+        const selected = selectedCustomOptions[opt.id] || [];
+        if (selected.length > 0) {
+          let adjustment = 0;
+          opt.options.forEach((choice: any) => {
+            if (selected.includes(choice.label)) {
+              adjustment += choice.priceAdjustment || 0;
+            }
+          });
+          optionsForCart.push({
+            optionName: opt.name,
+            selectedValues: selected,
+            priceAdjustment: adjustment,
+          });
+        }
+      });
+    }
     
     setIsAnimating(true);
-    // Ensure the variant image is passed correctly to the cart
-    addItem(product, selectedVariant, quantity);
+    addItem(product, selectedVariant, quantity, {
+      selectedOptions: optionsForCart.length > 0 ? optionsForCart : undefined,
+      attachedFile: attachedFile || undefined,
+      customerNote: customerNote.trim() || undefined,
+    });
     
-    // Animation reset
     setTimeout(() => setIsAnimating(false), 1000);
   };
 
@@ -319,6 +410,127 @@ export default function ProductDetails() {
                 </div>
               </div>
             </div>
+
+            {/* Custom Options */}
+            {product.customOptions && product.customOptions.length > 0 && (
+              <div className="space-y-4 mb-6">
+                {product.customOptions.map((opt: any) => (
+                  <div key={opt.id} className="space-y-2">
+                    <label className="block text-xs font-semibold text-gray-500 mb-2">
+                      {opt.name}
+                      {opt.required && <span className="text-red-500 mr-1">*</span>}
+                      {opt.type === "multiple" && (
+                        <span className="text-[10px] text-gray-400 font-normal mr-2">
+                          ({language === 'ar' ? 'يمكنك اختيار أكثر من خيار' : 'Select multiple'})
+                        </span>
+                      )}
+                    </label>
+                    <div className={`flex flex-wrap gap-2 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                      {opt.options.map((choice: any) => {
+                        const isSelected = (selectedCustomOptions[opt.id] || []).includes(choice.label);
+                        return (
+                          <button
+                            key={choice.label}
+                            type="button"
+                            onClick={() => handleCustomOptionToggle(opt.id, choice.label, opt.type)}
+                            className={`
+                              px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200
+                              ${isSelected
+                                ? 'bg-primary text-white shadow-md shadow-primary/20'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}
+                            `}
+                            data-testid={`button-option-${opt.id}-${choice.label}`}
+                          >
+                            {choice.label}
+                            {choice.priceAdjustment !== 0 && (
+                              <span className={`mr-1 text-[10px] ${isSelected ? 'text-white/80' : 'text-gray-400'}`}>
+                                ({choice.priceAdjustment > 0 ? '+' : ''}{choice.priceAdjustment} {language === 'ar' ? 'ر.س' : 'SAR'})
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* File Upload */}
+            {product.allowFileUpload && (
+              <div className="mb-6">
+                <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <FileText className="inline h-3.5 w-3.5 ml-1" />
+                  {language === 'ar' ? 'إرفاق ملف' : 'Attach File'}
+                </label>
+                {attachedFile ? (
+                  <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                    <Check className="h-4 w-4 text-green-600 shrink-0" />
+                    <span className="text-xs text-green-700 flex-1 truncate">
+                      {language === 'ar' ? 'تم رفع الملف بنجاح' : 'File uploaded successfully'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAttachedFile(null)}
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      data-testid="button-remove-file"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl px-4 py-4 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all">
+                    <Upload className="h-5 w-5 text-gray-400" />
+                    <span className="text-xs text-gray-500">
+                      {isUploading
+                        ? (language === 'ar' ? 'جاري الرفع...' : 'Uploading...')
+                        : (language === 'ar' ? 'اضغط لرفع ملف (الحد الأقصى 10 ميجا)' : 'Click to upload (max 10MB)')
+                      }
+                    </span>
+                    <input
+                      type="file"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                      data-testid="input-file-upload"
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+
+            {/* Customer Note */}
+            {product.allowNote && (
+              <div className="mb-6">
+                <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <MessageSquare className="inline h-3.5 w-3.5 ml-1" />
+                  {language === 'ar' ? 'أضف ملاحظة' : 'Add Note'}
+                </label>
+                <Textarea
+                  value={customerNote}
+                  onChange={(e) => setCustomerNote(e.target.value)}
+                  placeholder={language === 'ar' ? 'اكتب ملاحظتك هنا...' : 'Write your note here...'}
+                  className="rounded-xl text-xs min-h-[80px] resize-none text-right"
+                  maxLength={500}
+                  data-testid="textarea-customer-note"
+                />
+                <p className="text-[10px] text-gray-400 mt-1 text-left">{customerNote.length}/500</p>
+              </div>
+            )}
+
+            {/* Price with adjustments */}
+            {getOptionsExtraPrice() > 0 && (
+              <div className="mb-4 p-3 bg-primary/5 rounded-xl border border-primary/10">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-primary">
+                    {(Number(product.price) + getOptionsExtraPrice()).toFixed(2)} {language === 'ar' ? 'ر.س' : 'SAR'}
+                  </span>
+                  <span className="text-gray-500">
+                    {language === 'ar' ? 'السعر الإجمالي مع الخيارات' : 'Total with options'}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Installment Plans Section */}
             <div className="mb-6 p-4 sm:p-5 bg-gray-50 rounded-2xl border border-gray-100" data-testid="section-installment-plans">

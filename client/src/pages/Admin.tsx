@@ -245,11 +245,17 @@ const StatsCards = memo(() => {
 const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any) => {
   const { toast } = useToast();
   const [variants, setVariants] = useState<any[]>([]);
+  const [editCustomOptions, setEditCustomOptions] = useState<any[]>([]);
+  const [editAllowFileUpload, setEditAllowFileUpload] = useState(false);
+  const [editAllowNote, setEditAllowNote] = useState(false);
   const lastProductIdRef = React.useRef<string | null>(null);
 
   useEffect(() => {
     if (open && product && product.id !== lastProductIdRef.current) {
       setVariants(product.variants || []);
+      setEditCustomOptions(product.customOptions || []);
+      setEditAllowFileUpload(product.allowFileUpload || false);
+      setEditAllowNote(product.allowNote || false);
       lastProductIdRef.current = product.id;
     } else if (!open) {
       lastProductIdRef.current = null;
@@ -337,6 +343,52 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
     setVariants(variants.filter((_, i) => i !== index));
   };
 
+  const editAddCustomOption = () => {
+    setEditCustomOptions([...editCustomOptions, {
+      id: `opt-${Date.now()}`,
+      name: "",
+      type: "single" as const,
+      required: false,
+      options: [{ label: "", priceAdjustment: 0 }],
+    }]);
+  };
+
+  const editRemoveCustomOption = (index: number) => {
+    setEditCustomOptions(editCustomOptions.filter((_: any, i: number) => i !== index));
+  };
+
+  const editUpdateCustomOption = (index: number, field: string, value: any) => {
+    const updated = [...editCustomOptions];
+    updated[index] = { ...updated[index], [field]: value };
+    setEditCustomOptions(updated);
+  };
+
+  const editAddOptionChoice = (optIndex: number) => {
+    const updated = [...editCustomOptions];
+    updated[optIndex] = {
+      ...updated[optIndex],
+      options: [...updated[optIndex].options, { label: "", priceAdjustment: 0 }],
+    };
+    setEditCustomOptions(updated);
+  };
+
+  const editRemoveOptionChoice = (optIndex: number, choiceIndex: number) => {
+    const updated = [...editCustomOptions];
+    updated[optIndex] = {
+      ...updated[optIndex],
+      options: updated[optIndex].options.filter((_: any, i: number) => i !== choiceIndex),
+    };
+    setEditCustomOptions(updated);
+  };
+
+  const editUpdateOptionChoice = (optIndex: number, choiceIndex: number, field: string, value: any) => {
+    const updated = [...editCustomOptions];
+    const choices = [...updated[optIndex].options];
+    choices[choiceIndex] = { ...choices[choiceIndex], [field]: value };
+    updated[optIndex] = { ...updated[optIndex], options: choices };
+    setEditCustomOptions(updated);
+  };
+
   const onSubmit = async (data: InsertProduct) => {
     try {
       const payload = {
@@ -348,6 +400,9 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
         })),
         price: data.price.toString(),
         cost: data.cost.toString(),
+        customOptions: editCustomOptions.filter((o: any) => o.name && o.options.some((c: any) => c.label)),
+        allowFileUpload: editAllowFileUpload,
+        allowNote: editAllowNote,
       };
 
       await apiRequest("PATCH", `/api/products/${product.id}`, payload);
@@ -493,6 +548,79 @@ const EditProductDialog = memo(({ product, categories, open, onOpenChange }: any
                 </div>
               </div>
 
+           <div className="space-y-4 pt-4 border-t border-black/5 text-right">
+                <div className="flex justify-between items-center">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">خيارات مخصصة (أسئلة للعميل)</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={editAddCustomOption} className="rounded-none text-[10px] font-black uppercase tracking-widest h-8">
+                    إضافة سؤال <Plus className="mr-1 h-3 w-3" />
+                  </Button>
+                </div>
+                <div className="space-y-4">
+                  {editCustomOptions.map((opt: any, optIdx: number) => (
+                    <div key={opt.id} className="bg-secondary/10 p-4 border border-black/5 space-y-3">
+                      <div className="flex justify-between items-start gap-3">
+                        <Button type="button" variant="ghost" size="icon" onClick={() => editRemoveCustomOption(optIdx)} className="h-8 w-8 text-destructive hover:bg-destructive/10 shrink-0">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <div className="flex-1 grid grid-cols-3 gap-3">
+                          <div className="col-span-1 space-y-1">
+                            <Label className="text-[9px] font-bold">اسم السؤال / الخيار</Label>
+                            <Input value={opt.name} onChange={(e) => editUpdateCustomOption(optIdx, "name", e.target.value)} className="h-8 rounded-none text-xs text-right" placeholder="مثال: عدد القلوسات" />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-[9px] font-bold">نوع الاختيار</Label>
+                            <Select value={opt.type} onValueChange={(v) => editUpdateCustomOption(optIdx, "type", v)}>
+                              <SelectTrigger className="h-8 rounded-none text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="single">اختيار واحد</SelectItem>
+                                <SelectItem value="multiple">اختيار متعدد</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex items-end gap-2">
+                            <div className="flex items-center gap-2">
+                              <Switch checked={opt.required} onCheckedChange={(checked) => editUpdateCustomOption(optIdx, "required", checked)} />
+                              <Label className="text-[9px] font-bold">مطلوب</Label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2 mr-11">
+                        <Label className="text-[9px] font-bold text-black/40">الاختيارات:</Label>
+                        {opt.options.map((choice: any, choiceIdx: number) => (
+                          <div key={choiceIdx} className="flex gap-2 items-center">
+                            <Input value={choice.label} onChange={(e) => editUpdateOptionChoice(optIdx, choiceIdx, "label", e.target.value)} className="h-7 rounded-none text-xs text-right flex-1" placeholder="اسم الاختيار" />
+                            <div className="flex items-center gap-1">
+                              <Input type="number" value={choice.priceAdjustment} onChange={(e) => editUpdateOptionChoice(optIdx, choiceIdx, "priceAdjustment", Number(e.target.value))} className="h-7 rounded-none text-xs text-right w-20" placeholder="0" />
+                              <span className="text-[8px] text-black/40 whitespace-nowrap">ر.س</span>
+                            </div>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => editRemoveOptionChoice(optIdx, choiceIdx)} className="h-7 w-7 text-destructive hover:bg-destructive/10 shrink-0">
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button type="button" variant="ghost" size="sm" onClick={() => editAddOptionChoice(optIdx)} className="h-7 text-[9px] text-primary">
+                          <Plus className="h-3 w-3 ml-1" /> إضافة اختيار
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-4 border-t border-black/5">
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch id="editAllowFileUpload" checked={editAllowFileUpload} onCheckedChange={setEditAllowFileUpload} />
+                  <Label htmlFor="editAllowFileUpload" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">تفعيل إرفاق ملف من العميل</Label>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch id="editAllowNote" checked={editAllowNote} onCheckedChange={setEditAllowNote} />
+                  <Label htmlFor="editAllowNote" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">تفعيل إضافة ملاحظة من العميل</Label>
+                </div>
+              </div>
+
            <Button type="submit" className="w-full h-14 rounded-none font-black uppercase tracking-widest text-lg">تحديث المنتج</Button>
         </form>
       </DialogContent>
@@ -508,6 +636,9 @@ const ProductsTable = memo(() => {
   const [open, setOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [variants, setVariants] = useState<any[]>([]);
+  const [customOptions, setCustomOptions] = useState<any[]>([]);
+  const [allowFileUpload, setAllowFileUpload] = useState(false);
+  const [allowNote, setAllowNote] = useState(false);
 
   const form = useForm<InsertProduct>({
     resolver: zodResolver(insertProductSchema),
@@ -536,6 +667,9 @@ const ProductsTable = memo(() => {
         variants: (editingProduct as any).variants || [],
       } as any);
       setVariants((editingProduct as any).variants || []);
+      setCustomOptions(editingProduct.customOptions || []);
+      setAllowFileUpload(editingProduct.allowFileUpload || false);
+      setAllowNote(editingProduct.allowNote || false);
     } else {
       form.reset({
         name: "",
@@ -548,8 +682,11 @@ const ProductsTable = memo(() => {
         isFeatured: false,
       } as any);
       setVariants([]);
+      setCustomOptions([]);
+      setAllowFileUpload(false);
+      setAllowNote(false);
     }
-  }, [editingProduct]); // Removed 'form' from dependencies to avoid infinite loop
+  }, [editingProduct]);
 
   const addVariant = () => {
     setVariants([...variants, { color: "", size: "", sku: `SKU-${Date.now()}`, stock: 0, image: "" }]);
@@ -563,6 +700,52 @@ const ProductsTable = memo(() => {
     const newVariants = [...variants];
     newVariants[index] = { ...newVariants[index], [field]: value };
     setVariants(newVariants);
+  };
+
+  const addCustomOption = () => {
+    setCustomOptions([...customOptions, {
+      id: `opt-${Date.now()}`,
+      name: "",
+      type: "single" as const,
+      required: false,
+      options: [{ label: "", priceAdjustment: 0 }],
+    }]);
+  };
+
+  const removeCustomOption = (index: number) => {
+    setCustomOptions(customOptions.filter((_: any, i: number) => i !== index));
+  };
+
+  const updateCustomOption = (index: number, field: string, value: any) => {
+    const updated = [...customOptions];
+    updated[index] = { ...updated[index], [field]: value };
+    setCustomOptions(updated);
+  };
+
+  const addOptionChoice = (optIndex: number) => {
+    const updated = [...customOptions];
+    updated[optIndex] = {
+      ...updated[optIndex],
+      options: [...updated[optIndex].options, { label: "", priceAdjustment: 0 }],
+    };
+    setCustomOptions(updated);
+  };
+
+  const removeOptionChoice = (optIndex: number, choiceIndex: number) => {
+    const updated = [...customOptions];
+    updated[optIndex] = {
+      ...updated[optIndex],
+      options: updated[optIndex].options.filter((_: any, i: number) => i !== choiceIndex),
+    };
+    setCustomOptions(updated);
+  };
+
+  const updateOptionChoice = (optIndex: number, choiceIndex: number, field: string, value: any) => {
+    const updated = [...customOptions];
+    const choices = [...updated[optIndex].options];
+    choices[choiceIndex] = { ...choices[choiceIndex], [field]: value };
+    updated[optIndex] = { ...updated[optIndex], options: choices };
+    setCustomOptions(updated);
   };
 
   const deleteProductMutation = useMutation({
@@ -586,6 +769,9 @@ const ProductsTable = memo(() => {
         })),
         price: data.price.toString(),
         cost: data.cost.toString(),
+        customOptions: customOptions.filter((o: any) => o.name && o.options.some((c: any) => c.label)),
+        allowFileUpload,
+        allowNote,
       };
 
       if (editingProduct) {
@@ -802,13 +988,109 @@ const ProductsTable = memo(() => {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 space-x-reverse pt-4 border-t border-black/5">
-                <Switch 
-                  id="isFeatured" 
-                  checked={form.watch("isFeatured")} 
-                  onCheckedChange={(checked) => form.setValue("isFeatured", checked)}
-                />
-                <Label htmlFor="isFeatured" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">تمييز المنتج في الصفحة الرئيسية</Label>
+              <div className="space-y-4 pt-4 border-t border-black/5 text-right">
+                <div className="flex justify-between items-center">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">خيارات مخصصة (أسئلة للعميل)</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addCustomOption} className="rounded-none text-[10px] font-black uppercase tracking-widest h-8">
+                    إضافة سؤال <Plus className="mr-1 h-3 w-3" />
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  {customOptions.map((opt: any, optIdx: number) => (
+                    <div key={opt.id} className="bg-secondary/10 p-4 border border-black/5 space-y-3">
+                      <div className="flex justify-between items-start gap-3">
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeCustomOption(optIdx)} className="h-8 w-8 text-destructive hover:bg-destructive/10 shrink-0">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <div className="flex-1 grid grid-cols-3 gap-3">
+                          <div className="col-span-1 space-y-1">
+                            <Label className="text-[9px] font-bold">اسم السؤال / الخيار</Label>
+                            <Input value={opt.name} onChange={(e) => updateCustomOption(optIdx, "name", e.target.value)} className="h-8 rounded-none text-xs text-right" placeholder="مثال: عدد القلوسات" />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-[9px] font-bold">نوع الاختيار</Label>
+                            <Select value={opt.type} onValueChange={(v) => updateCustomOption(optIdx, "type", v)}>
+                              <SelectTrigger className="h-8 rounded-none text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="single">اختيار واحد</SelectItem>
+                                <SelectItem value="multiple">اختيار متعدد</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex items-end gap-2">
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={opt.required}
+                                onCheckedChange={(checked) => updateCustomOption(optIdx, "required", checked)}
+                              />
+                              <Label className="text-[9px] font-bold">مطلوب</Label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 mr-11">
+                        <Label className="text-[9px] font-bold text-black/40">الاختيارات:</Label>
+                        {opt.options.map((choice: any, choiceIdx: number) => (
+                          <div key={choiceIdx} className="flex gap-2 items-center">
+                            <Input
+                              value={choice.label}
+                              onChange={(e) => updateOptionChoice(optIdx, choiceIdx, "label", e.target.value)}
+                              className="h-7 rounded-none text-xs text-right flex-1"
+                              placeholder="اسم الاختيار"
+                            />
+                            <div className="flex items-center gap-1">
+                              <Input
+                                type="number"
+                                value={choice.priceAdjustment}
+                                onChange={(e) => updateOptionChoice(optIdx, choiceIdx, "priceAdjustment", Number(e.target.value))}
+                                className="h-7 rounded-none text-xs text-right w-20"
+                                placeholder="0"
+                              />
+                              <span className="text-[8px] text-black/40 whitespace-nowrap">ر.س</span>
+                            </div>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => removeOptionChoice(optIdx, choiceIdx)} className="h-7 w-7 text-destructive hover:bg-destructive/10 shrink-0">
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button type="button" variant="ghost" size="sm" onClick={() => addOptionChoice(optIdx)} className="h-7 text-[9px] text-primary">
+                          <Plus className="h-3 w-3 ml-1" /> إضافة اختيار
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-4 border-t border-black/5">
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch
+                    id="allowFileUpload"
+                    checked={allowFileUpload}
+                    onCheckedChange={setAllowFileUpload}
+                  />
+                  <Label htmlFor="allowFileUpload" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">تفعيل إرفاق ملف من العميل</Label>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch
+                    id="allowNote"
+                    checked={allowNote}
+                    onCheckedChange={setAllowNote}
+                  />
+                  <Label htmlFor="allowNote" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">تفعيل إضافة ملاحظة من العميل</Label>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch 
+                    id="isFeatured" 
+                    checked={form.watch("isFeatured")} 
+                    onCheckedChange={(checked) => form.setValue("isFeatured", checked)}
+                  />
+                  <Label htmlFor="isFeatured" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">تمييز المنتج في الصفحة الرئيسية</Label>
+                </div>
               </div>
 
               <Button type="submit" disabled={createProduct.isPending} className="w-full h-14 rounded-none font-black uppercase tracking-widest text-lg">

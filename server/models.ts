@@ -57,6 +57,18 @@ const productSchema = new Schema<Product>(
       image: String,
     }],
     isFeatured: { type: Boolean, default: false },
+    customOptions: [{
+      id: String,
+      name: String,
+      type: { type: String, enum: ["single", "multiple"], default: "single" },
+      required: { type: Boolean, default: false },
+      options: [{
+        label: String,
+        priceAdjustment: { type: Number, default: 0 },
+      }],
+    }],
+    allowFileUpload: { type: Boolean, default: false },
+    allowNote: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
@@ -83,6 +95,13 @@ const orderSchema = new Schema<Order>(
       price: Number,
       cost: Number,
       title: String,
+      selectedOptions: [{
+        optionName: String,
+        selectedValues: [String],
+        priceAdjustment: { type: Number, default: 0 },
+      }],
+      attachedFile: String,
+      customerNote: String,
     }],
     shippingMethod: { type: String, enum: ["pickup", "delivery"], required: true },
     shippingAddress: {

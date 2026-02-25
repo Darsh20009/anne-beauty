@@ -124,6 +124,20 @@ export const insertCouponSchema = z.object({
 export type InsertCoupon = z.infer<typeof insertCouponSchema>;
 export type Coupon = InsertCoupon & { _id: string; id: string; usageCount: number };
 
+// Product Custom Option Schema
+export const productCustomOptionSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  type: z.enum(["single", "multiple"]),
+  required: z.boolean().default(false),
+  options: z.array(z.object({
+    label: z.string().min(1),
+    priceAdjustment: z.number().default(0),
+  })).default([]),
+});
+
+export type ProductCustomOption = z.infer<typeof productCustomOptionSchema>;
+
 // Product Schema
 export const insertProductSchema = z.object({
   name: z.string().min(1),
@@ -143,6 +157,9 @@ export const insertProductSchema = z.object({
     cost: z.number().default(0),
     image: z.string().optional(),
   })).default([]),
+  customOptions: z.array(productCustomOptionSchema).default([]),
+  allowFileUpload: z.boolean().default(false),
+  allowNote: z.boolean().default(false),
 });
 
 export type InsertProduct = z.infer<typeof insertProductSchema>;
@@ -177,8 +194,15 @@ export const insertOrderSchema = z.object({
     variantSku: z.string(),
     quantity: z.number(),
     price: z.number(),
-    cost: z.number(), // Added cost per item at time of purchase
+    cost: z.number(),
     title: z.string(),
+    selectedOptions: z.array(z.object({
+      optionName: z.string(),
+      selectedValues: z.array(z.string()),
+      priceAdjustment: z.number().default(0),
+    })).optional(),
+    attachedFile: z.string().optional(),
+    customerNote: z.string().optional(),
   })),
   shippingMethod: z.enum(["pickup", "delivery"]),
   shippingAddress: z.object({

@@ -37,6 +37,9 @@ Preferred communication style: Simple, everyday language (Arabic/English).
 - **Schema Location**: shared/schema.ts (Zod validation) + server/models.ts (Mongoose schemas)
 - **Key Collections**: users, products, orders, categories, marketing
 - **Product Variants**: Stored as subdocument arrays (color, size, sku, stock, cost)
+- **Product Custom Options**: Admin-defined questions/option groups per product (single/multiple choice, price adjustments)
+- **Product File Upload**: Toggleable per product - allows customers to attach files
+- **Product Notes**: Toggleable per product - allows customers to add notes
 
 ### Project Structure
 ```
