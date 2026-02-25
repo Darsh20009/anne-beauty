@@ -20,6 +20,8 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 
+import Screenshot_2026_02_25_072355 from "@assets/Screenshot 2026-02-25 072355.png";
+
 export function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const cartItems = useCart((state) => state.items);
@@ -106,7 +108,6 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </div>
-
       {/* Main Navbar */}
       <nav className="sticky top-0 z-50 w-full bg-white shadow-sm safe-top">
         <div className="container flex items-center h-14 sm:h-16 md:h-[72px] px-3 sm:px-4 gap-3 md:gap-6">
@@ -355,7 +356,7 @@ export function Layout({ children }: { children: ReactNode }) {
             {/* About */}
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="flex items-center gap-2 mb-4">
-                <img src={logoImg} alt="Anne Beauty" className="h-10 sm:h-12 w-auto object-contain brightness-0 invert" />
+                <img src={Screenshot_2026_02_25_072355} alt="Anne Beauty" className="h-10 sm:h-12 w-auto object-contain brightness-0 invert" />
                 <div>
                   <p className="text-white font-bold text-sm">Anne Beauty</p>
                   <p className="text-gray-500 text-[10px]">آن بيوتي</p>
