@@ -359,10 +359,6 @@ export function Layout({ children }: { children: ReactNode }) {
 
           {/* Saudi Business Center Certification */}
           <div className="mt-12 pt-8 border-t flex flex-col items-center gap-8">
-            <div className="flex flex-col items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{language === 'ar' ? 'وثيقة العمل الحر' : 'Freelance Document'}</span>
-              <span className="text-sm font-bold text-black">FL-941284778</span>
-            </div>
             <a 
               href="https://eauthenticate.saudibusiness.gov.sa/certificate-details/0000203202" 
               target="_blank" 
@@ -375,7 +371,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 alt="وثيقة العمل الحر" 
                 className="h-16 w-auto object-contain" 
               />
-              <div className="text-xs text-muted-foreground font-semibold">FL-941284778</div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{language === 'ar' ? 'وثيقة العمل الحر' : 'Freelance Document'}</span>
             </a>
           </div>
 
