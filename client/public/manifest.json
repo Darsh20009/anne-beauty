@@ -1,11 +1,11 @@
 {
-  "name": "M&Z Store",
-  "short_name": "M&Z",
-  "description": "متجر M&Z للتجارة الإلكترونية - الفخامة العصرية للجيل الجديد",
+  "name": "Anne Beauty | آن بيوتي",
+  "short_name": "Anne Beauty",
+  "description": "آن بيوتي - الفخامة العصرية للجيل الجديد",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "theme_color": "#0D8659",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
