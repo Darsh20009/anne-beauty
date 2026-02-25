@@ -1,4 +1,4 @@
-import logoImg from "@assets/Gen_M&Z_LOGO_1766644527859.png";
+import logoImg from "@/assets/logo.png";
 import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ShoppingBag, User, Menu, LogOut, Sun, Moon, Phone, Mail, Instagram, Twitter, Download, Globe, Check, Wallet } from "lucide-react";
@@ -108,10 +108,10 @@ export function Layout({ children }: { children: ReactNode }) {
 
             <Link href="/" className="flex items-center py-2 hover:opacity-80 transition-opacity active:scale-95 transition-transform">
               <div className="flex items-center gap-2 md:gap-3">
-                <img src={logoImg} alt="Gen M & Z" className="h-10 w-auto md:h-14 object-contain" />
+                <img src={logoImg} alt="Anne Beauty" className="h-10 w-auto md:h-16 object-contain" />
                 <div className="hidden sm:flex flex-col border-l border-black/10 pl-3">
-                  <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] leading-none text-black/40 mb-1">Modern Luxury</span>
-                  <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.1em] leading-none">Gen M & Z</span>
+                  <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] leading-none text-black/40 mb-1">Premium Beauty</span>
+                  <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.1em] leading-none">Anne Beauty</span>
                 </div>
               </div>
             </Link>
@@ -248,7 +248,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="container grid grid-cols-1 md:grid-cols-4 gap-12 px-4">
           <div className="space-y-4">
             <Link href="/" className="flex items-center">
-              <img src={logoImg} alt="Gen M & Z" className="h-14 w-auto object-contain" />
+              <img src={logoImg} alt="Anne Beauty" className="h-16 w-auto object-contain" />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {language === 'ar' 
@@ -379,7 +379,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
           {/* Copyright - Last Section */}
           <div className="mt-12 pt-8 border-t">
-            <p>© 2026 Gen M & Z. {t('allRightsReserved')}.</p>
+            <p>© 2026 Anne Beauty. {t('allRightsReserved')}.</p>
             <p className="mt-2 text-xs opacity-70">{t('madeWithLove')}</p>
           </div>
         </div>

@@ -116,8 +116,8 @@ export default function Home() {
           >
             <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-primary mb-3 sm:mb-4 uppercase">{t('newCollection')}</span>
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[0.9] mb-6 sm:mb-8 text-black tracking-tighter">
-              GEN M & Z
-              <span className="block text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-3 md:mt-4 font-light text-muted-foreground italic font-serif">{t('heroTitle')}</span>
+              ANNE BEAUTY
+              <span className="block text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl mt-2 sm:mt-3 md:mt-4 font-light text-muted-foreground italic font-serif">Anne Beauty - آن بيوتي</span>
             </h1>
             <p className={`text-muted-foreground text-sm sm:text-base md:text-lg lg:text-xl mb-8 sm:mb-10 md:mb-12 max-w-md ${language === 'ar' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'} leading-relaxed font-light`}>
               {t('heroDesc')}
@@ -141,12 +141,12 @@ export default function Home() {
               <div className="absolute inset-0 border-[10px] sm:border-[15px] md:border-[20px] border-primary/5 -m-6 sm:-m-8 md:-m-10 hidden md:block" />
               <img 
                 src={heroImg} 
-                alt="Gen M & Z Hero" 
+                alt="Anne Beauty Hero" 
                 className="w-full h-full object-cover shadow-2xl transition-all duration-1000"
               />
               <div className={`absolute -bottom-4 sm:-bottom-6 ${language === 'ar' ? '-right-4 sm:-right-6' : '-left-4 sm:-left-6'} bg-black text-white p-3 sm:p-4 md:p-6 hidden md:block`}>
                 <p className="text-[8px] sm:text-[9px] tracking-widest uppercase font-bold mb-1">{t('featuredItem')}</p>
-                <p className="text-sm sm:text-base md:text-lg font-black leading-none">BURGUNDY HOODIE</p>
+                <p className="text-sm sm:text-base md:text-lg font-black leading-none">ANNE BEAUTY SPECIAL</p>
               </div>
             </div>
           </motion.div>

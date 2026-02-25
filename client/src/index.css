@@ -15,16 +15,16 @@
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
  
-  --primary: 161 94% 30%; /* Emerald Green */
+  --primary: 354 70% 35%; /* Maroon-ish from logo */
   --primary-foreground: 210 40% 98%;
  
-  --secondary: 210 40% 96.1%;
+  --secondary: 45 40% 96%; /* Creamy background from logo */
   --secondary-foreground: 222.2 47.4% 11.2%;
  
-  --muted: 210 40% 96.1%;
+  --muted: 45 40% 96%;
   --muted-foreground: 215.4 16.3% 46.9%;
  
-  --accent: 210 40% 96.1%;
+  --accent: 45 40% 96%;
   --accent-foreground: 222.2 47.4% 11.2%;
  
   --destructive: 0 84.2% 60.2%;
@@ -32,7 +32,7 @@
 
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 161 94% 30%;
+  --ring: 354 70% 35%;
 
   --radius: 1rem;
 }
