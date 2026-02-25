@@ -15,24 +15,24 @@
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
  
-  --primary: 161 94% 30%; /* Balanced Deep Green */
+  --primary: 354 70% 35%; /* Logo Maroon */
   --primary-foreground: 210 40% 98%;
  
-  --secondary: 161 20% 96%; /* Soft Green Tint */
+  --secondary: 45 40% 96%; /* Creamy background from logo */
   --secondary-foreground: 222.2 47.4% 11.2%;
  
-  --muted: 161 20% 96%;
+  --muted: 45 40% 96%;
   --muted-foreground: 215.4 16.3% 46.9%;
  
-  --accent: 161 20% 96%;
+  --accent: 45 40% 96%;
   --accent-foreground: 222.2 47.4% 11.2%;
  
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 161 20% 90%;
-  --input: 161 20% 90%;
-  --ring: 161 94% 30%;
+  --border: 354 20% 90%;
+  --input: 354 20% 90%;
+  --ring: 354 70% 35%;
 
   --radius: 1rem;
 }

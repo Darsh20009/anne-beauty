@@ -9,17 +9,17 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState, useMemo } from "react";
 import { MarketingBanners } from "@/components/marketing-banners";
-import heroImg from "@assets/Screenshot_2025-12-25_100613_1766646961781.png";
-import heroImg2 from "@assets/Screenshot_2025-12-26_014345_1766730066129.png";
-import heroImg3 from "@assets/Screenshot_2025-12-26_014353_1766730066129.png";
-import heroImg4 from "@assets/Screenshot_2025-12-26_014400_1766730066130.png";
-import mergeImg from "@assets/Screenshot_2025-12-25_100626_1766731300665.png";
-import doubleLayerImg from "@assets/Screenshot_2025-12-25_100641_1766731300665.png";
-import shoppingImg from "@assets/Screenshot_2025-12-25_100700_1766731300666.png";
-import womenImg from "@assets/Screenshot_2025-12-25_100724_1766731300667.png";
-import burgundyImg from "@assets/Screenshot_2025-12-25_100738_1766731300668.png";
+import heroImg from "@assets/Screenshot_2026-02-25_075934_1771995737623.png";
+import heroImg2 from "@assets/Screenshot_2026-02-25_080037_1771995737624.png";
+import heroImg3 from "@assets/Screenshot_2026-02-25_080154_1771995737625.png";
+import heroImg4 from "@assets/Screenshot_2026-02-25_080206_1771995737625.png";
+import mergeImg from "@assets/Screenshot_2026-02-25_075934_1771995737623.png";
+import doubleLayerImg from "@assets/Screenshot_2026-02-25_080037_1771995737624.png";
+import shoppingImg from "@assets/Screenshot_2026-02-25_080154_1771995737625.png";
+import womenImg from "@assets/Screenshot_2026-02-25_080206_1771995737625.png";
+import burgundyImg from "@assets/Screenshot_2026-02-25_075934_1771995737623.png";
 
-const heroImages = [heroImg2, heroImg3, heroImg4];
+const heroImages = [heroImg, heroImg2, heroImg3, heroImg4];
 
 export default function Home() {
   const { user } = useAuth();
@@ -32,11 +32,11 @@ export default function Home() {
   const [isCollectionLoaded, setIsCollectionLoaded] = useState<{ [key: number]: boolean }>({});
   
   const collectionImages = useMemo(() => [
-    { src: mergeImg, label: language === 'ar' ? 'النمط' : 'Style', title: 'MERGE' },
-    { src: doubleLayerImg, label: language === 'ar' ? 'مزدوج' : 'Double Layer', title: 'HOOD' },
-    { src: shoppingImg, label: language === 'ar' ? 'تجربة' : 'Experience', title: 'SHOPPING' },
-    { src: womenImg, label: language === 'ar' ? 'نساء' : 'Women', title: 'ELEGANT' },
-    { src: burgundyImg, label: language === 'ar' ? 'العنابي' : 'Premium', title: 'BURGUNDY' }
+    { src: mergeImg, label: language === 'ar' ? 'مكياج' : 'Makeup', title: 'GLOW' },
+    { src: doubleLayerImg, label: language === 'ar' ? 'جمال' : 'Beauty', title: 'EYES' },
+    { src: shoppingImg, label: language === 'ar' ? 'أناقة' : 'Elegance', title: 'STYLE' },
+    { src: womenImg, label: language === 'ar' ? 'عناية' : 'Care', title: 'ANNE' },
+    { src: burgundyImg, label: language === 'ar' ? 'إبداع' : 'Creative', title: 'BEAUTY' }
   ], [language]);
 
   // Preload all images

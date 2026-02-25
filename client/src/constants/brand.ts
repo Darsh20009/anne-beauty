@@ -9,7 +9,7 @@
 
 export const BRAND_COLORS = {
   // Primary
-  primary: '#0D8659', // Balanced Deep Green
+  primary: '#8B1D24', // Maroon from Logo
   primaryForeground: '#FFFFFF',
   
   // Neutral
@@ -34,7 +34,7 @@ export const BRAND_COLORS = {
   accent: {
     amber: '#D97706',    // Warm (sales, limited offers)
     blue: '#3B82F6',     // Cool (information)
-    green: '#0D8659',    // Brand accent
+    maroon: '#8B1D24',   // Brand accent
   },
   
   // Status

@@ -50,11 +50,11 @@ export async function seed() {
   const categories = await storage.getCategories();
   if (categories.length === 0) {
     await CategoryModel.insertMany([
-      { name: "Men", slug: "men" },
-      { name: "Women", slug: "women" },
-      { name: "Kids", slug: "kids" },
-      { name: "Accessories", slug: "accessories" },
-      { name: "Perfumes", slug: "perfumes" },
+      { name: "Makeup", slug: "makeup" },
+      { name: "Face", slug: "face" },
+      { name: "Eyes", slug: "eyes" },
+      { name: "Lips", slug: "lips" },
+      { name: "Tools", slug: "tools" },
     ]);
     console.log("Categories seeded");
   }
