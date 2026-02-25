@@ -1,14 +1,14 @@
-# Gen M&Z - Fashion E-commerce Platform
+# Anne Beauty (آن بيوتي) - Beauty E-commerce Platform
 
 ## Overview
 
-Gen M&Z is a full-featured bilingual (Arabic/English) fashion e-commerce platform targeting Saudi Arabia's Gen M and Gen Z consumers. The platform features a minimalist, luxury aesthetic inspired by Zara and Everlane, with complete storefront functionality, shopping cart, user authentication, and an admin dashboard for managing products, orders, and customers.
+Anne Beauty is a full-featured bilingual (Arabic/English) beauty and makeup e-commerce platform targeting Saudi Arabia's market. The platform features a modern, Noon/Amazon-inspired layout with maroon (#8B1D24) brand identity, complete storefront functionality, shopping cart, user authentication, POS system, and an admin dashboard for managing products, orders, staff, and customers.
 
-The application follows a monorepo structure with a React frontend (Vite), Express backend, and PostgreSQL database using Drizzle ORM. It supports RTL layout for Arabic, dark/light themes, and is designed mobile-first with responsive breakpoints.
+The application follows a monorepo structure with a React frontend (Vite), Express backend, and MongoDB database using Mongoose. It supports RTL layout for Arabic, dark/light themes, PWA capabilities, and is designed mobile-first with responsive breakpoints.
 
 ## User Preferences
 
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language (Arabic/English).
 
 ## System Architecture
 
@@ -22,58 +22,79 @@ Preferred communication style: Simple, everyday language.
 - **Styling**: Tailwind CSS with shadcn/ui component library (New York style)
 - **Animations**: Framer Motion for page transitions and micro-interactions
 - **Icons**: Lucide React + react-icons for social media icons
+- **Brand Colors**: Primary maroon #8B1D24 (HSL 354 70% 35%), dark mode variant HSL 354 70% 45%
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express
-- **Language**: TypeScript with ESM modules
+- **Language**: TypeScript with ESM modules (tsx for development)
 - **Authentication**: Passport.js with local strategy, express-session with memory store
 - **Password Hashing**: Node crypto scrypt with salt
 - **API Design**: RESTful endpoints defined in shared/routes.ts with Zod validation
 
 ### Database Layer
-- **ORM**: Drizzle ORM with PostgreSQL dialect
-- **Schema Location**: shared/schema.ts (shared between frontend and backend)
-- **Migrations**: drizzle-kit for schema management
-- **Key Tables**: users, products, orders, categories
-- **Product Variants**: Stored as JSONB for flexibility (color, size, sku, stock)
+- **Database**: MongoDB (connected via MONGODB_URI)
+- **ODM**: Mongoose with TypeScript models
+- **Schema Location**: shared/schema.ts (Zod validation) + server/models.ts (Mongoose schemas)
+- **Key Collections**: users, products, orders, categories, marketing
+- **Product Variants**: Stored as subdocument arrays (color, size, sku, stock, cost)
 
 ### Project Structure
 ```
 ├── client/src/           # React frontend
-│   ├── components/       # Reusable UI components
-│   ├── pages/           # Route pages (Home, Products, Cart, Admin, etc.)
-│   ├── hooks/           # Custom hooks (auth, cart, products)
-│   └── lib/             # Utilities and query client
-├── server/              # Express backend
-│   ├── routes.ts        # API endpoint definitions
-│   ├── storage.ts       # Database access layer
-│   ├── auth.ts          # Authentication setup
-│   └── seed.ts          # Initial data seeding
-├── shared/              # Shared code
-│   ├── schema.ts        # Drizzle database schemas
-│   └── routes.ts        # API route definitions with Zod schemas
-└── attached_assets/     # Static assets and reference materials
+│   ├── assets/           # Logo and brand images
+│   ├── components/       # Reusable UI components (Layout, ProductCard, SplashScreen, etc.)
+│   ├── pages/            # Route pages (Home, Products, Cart, Admin, POS, etc.)
+│   ├── hooks/            # Custom hooks (auth, cart, products, language)
+│   └── lib/              # Utilities and query client
+├── client/public/        # Static assets (favicon, PWA icons, manifest.json)
+├── server/               # Express backend
+│   ├── routes.ts         # API endpoint definitions
+│   ├── models.ts         # Mongoose schemas/models
+│   ├── auth.ts           # Authentication setup
+│   └── seed.ts           # Initial data seeding
+├── shared/               # Shared code
+│   ├── schema.ts         # Zod validation schemas and TypeScript types
+│   └── routes.ts         # API route definitions with Zod schemas
+└── attached_assets/      # User-provided assets and reference materials
 ```
 
+### Key Pages
+- **Home**: Noon/Amazon-style with hero carousel, category icons, flash deals, product grids, promo banners
+- **Products**: Product listing with category filtering
+- **ProductDetails**: Individual product view with variants
+- **Cart/Checkout**: Shopping cart and checkout flow
+- **Admin**: Full dashboard (products, orders, staff, branches, banners, audit logs, roles)
+- **POS**: Point of sale interface for physical stores
+- **Login/Register**: Phone-based authentication
+
 ### Design System
-- **Typography**: Cairo font for Arabic/body text, with display and body font variables
-- **Color Scheme**: Black/white minimalist luxury theme with CSS custom properties
-- **RTL Support**: Full right-to-left layout with dir="rtl" attribute
-- **Theme Toggle**: Dark/light mode with localStorage persistence
+- **Brand**: Anne Beauty (آن بيوتي) - domain AnneBeauty.sa
+- **Primary Color**: Maroon #8B1D24
+- **Typography**: Arabic-first with RTL support, various Google Fonts loaded
+- **Home Page Style**: Noon.com/Amazon-inspired with rich sections, category grids, countdown timers, promo banners
+- **PWA**: Service worker, manifest with properly sized icons (32, 180, 192, 512px)
+- **Splash Screen**: Animated intro with logo, maroon accents, progress bar
+- **Theme Toggle**: Dark/light mode with localStorage persistence (key: annebeauty-theme)
 
 ### User Roles
-The system supports four roles: admin, employee, customer, and support. Admins have full access to the dashboard for managing products, orders, and customers.
+- **admin**: Full access to dashboard, products, orders, staff, settings
+- **employee**: Access based on granular permissions (orders.view, products.edit, pos.access, etc.)
+- **customer**: Storefront shopping, order tracking, profile
+- **support**: Customer service access
+
+### Admin Credentials
+- Phone: 567326086
+- Password: 20262030
 
 ## External Dependencies
 
 ### Database
-- **PostgreSQL**: Primary database, connection via DATABASE_URL environment variable
-- **Drizzle ORM**: Type-safe database queries and migrations
+- **MongoDB**: Primary database via MONGODB_URI environment variable
+- **Mongoose**: ODM for MongoDB with TypeScript support
 
-### Authentication
-- **Passport.js**: Authentication middleware with local username/password strategy
-- **express-session**: Session management with configurable memory store
-- **SESSION_SECRET**: Environment variable for session encryption
+### Payment Integrations
+- **Tamara**: Buy-now-pay-later widget (embedded via CDN)
+- **Tabby**: Installment payment widget (embedded via CDN)
 
 ### Frontend Libraries
 - **@tanstack/react-query**: Server state management and caching
@@ -81,15 +102,14 @@ The system supports four roles: admin, employee, customer, and support. Admins h
 - **shadcn/ui**: Pre-built accessible UI components (Radix primitives)
 - **framer-motion**: Animation library for transitions
 - **react-hook-form + zod**: Form handling with validation
+- **react-phone-input-2**: International phone number input
 
 ### Build and Development
 - **Vite**: Frontend build tool with HMR
 - **esbuild**: Server bundling for production
 - **tsx**: TypeScript execution for development
 
-### Fonts
-- **Google Fonts**: Cairo (Arabic support), Manrope, Cormorant Garamond (per design guidelines)
-
-### Image Storage
-- Design specifies Cloudinary/S3 integration for product images (not yet implemented)
-- Currently using static assets and external URLs
+### SEO & Social
+- Open Graph meta tags configured for annebeauty.sa
+- Twitter card meta tags
+- og-image.png generated with maroon brand background + logo

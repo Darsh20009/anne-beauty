@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { useLanguage } from "@/hooks/use-language";
 import { AuthProvider } from "@/components/auth-provider";
+import { SplashScreen } from "@/components/SplashScreen";
+import { useState } from "react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Products from "@/pages/Products";
@@ -129,6 +131,11 @@ function Router() {
 
 function AppContent() {
   const { language } = useLanguage();
+  const [showSplash, setShowSplash] = useState(true);
+
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
   
   return (
     <div dir={language === 'ar' ? 'rtl' : 'ltr'} lang={language}>
